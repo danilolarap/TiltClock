@@ -10,7 +10,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen font-mono select-none p-4">
 
-    <!-- Contenedor / Simulación del Smartwatch -->
+    <!-- Contenedor del Smartwatch -->
     <div class="relative flex flex-col items-center">
         <!-- Correa Superior -->
         <div class="w-28 h-16 bg-gradient-to-b from-slate-300 to-slate-200 rounded-t-2xl border-t border-x border-slate-300/60 shadow-inner flex justify-center pt-2">
@@ -27,9 +27,12 @@
             <!-- Pantalla Circular (Watchface) -->
             <div class="relative w-full h-full bg-slate-50 rounded-full overflow-hidden border border-slate-200 shadow-inner flex flex-col items-center justify-between p-4 text-cyan-600">
                 
-                <!-- Header: Fecha y Pasos -->
-                <div class="z-10 flex flex-col items-center gap-0.5 mt-1">
-                    <div class="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
+                <!-- Capa Absoluta 3D (Ocupa todo el fondo sin mover texto) -->
+                <div id="avatar-canvas-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
+
+                <!-- Capa Superior: Fecha y Hora (z-20) -->
+                <div class="z-20 flex flex-col items-center gap-0.5 mt-2 pointer-events-none">
+                    <div class="flex items-center gap-2 text-[10px] text-slate-500 font-medium bg-slate-50/70 px-2 py-0.5 rounded-full backdrop-blur-xs">
                         <span><i class="fa-regular fa-calendar text-cyan-500 mr-1"></i><span id="watch-date">LUN, 24 OCT</span></span>
                         <span>•</span>
                         <div id="step-container" class="flex items-center gap-1">
@@ -40,31 +43,28 @@
                     </div>
 
                     <!-- Hora Digital -->
-                    <div class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 mt-0.5 flex items-baseline gap-1">
-                        <span id="watch-time">08:04</span>
+                    <div class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 drop-shadow-sm flex items-baseline gap-1 mt-0.5">
+                        <span id="watch-time">08:27</span>
                         <span id="watch-ampm" class="text-xs font-bold text-cyan-600">AM</span>
                     </div>
                 </div>
 
-                <!-- Centro: Lienzo 3D para el Avatar -->
-                <div class="relative flex-1 w-full flex items-center justify-center">
-                    <div id="avatar-canvas-container" class="absolute inset-0 w-full h-full flex items-center justify-center"></div>
-                </div>
-
-                <!-- Footer: Batería y Botón Dinámico -->
-                <div class="z-10 flex flex-col items-center gap-1.5 w-full mb-1">
-                    <div class="flex items-center justify-center w-full text-[10px] text-slate-500 font-semibold">
+                <!-- Capa Inferior: Batería y Botón Curvo (z-20) -->
+                <div class="z-20 flex flex-col items-center gap-1 w-full mb-1">
+                    
+                    <div class="flex items-center justify-center text-[10px] text-slate-500 font-semibold bg-slate-50/70 px-2 py-0.5 rounded-full backdrop-blur-xs">
                         <span><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1"></i><span id="watch-battery">85%</span></span>
                     </div>
 
-                    <!-- Botón de Cargar Modelo (Cambia dinámicamente de Óvalo a Círculo en Esquina) -->
-                    <div id="upload-btn-wrapper" class="btn-state-oval">
-                        <label title="Cargar o cambiar modelo .GLB" class="bg-cyan-500 hover:bg-cyan-600 active:scale-95 text-white font-bold cursor-pointer transition-all duration-300 shadow-md flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-box-archive"></i>
-                            <span id="upload-btn-text">Cargar Avatar .GLB</span>
+                    <!-- Botón en Arco Curvo Adaptado -->
+                    <div id="upload-btn-wrapper" class="w-full flex justify-center">
+                        <label title="Cargar o cambiar modelo .GLB" class="curved-btn bg-cyan-500 hover:bg-cyan-600 active:scale-98 text-white font-bold cursor-pointer flex items-center justify-center gap-1.5 border border-cyan-300/50">
+                            <i class="fa-solid fa-box-archive text-xs"></i>
+                            <span id="upload-btn-text" class="text-[10px] tracking-wider uppercase">Cargar Avatar .GLB</span>
                             <input type="file" id="glb-input" accept=".glb,.gltf" class="hidden">
                         </label>
                     </div>
+
                 </div>
 
             </div>
@@ -76,11 +76,11 @@
         </div>
     </div>
 
-    <!-- Carga de Librerías 3D -->
+    <!-- Librerías 3D -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
-    <!-- Módulos de la Aplicación -->
+    <!-- Módulos de la App -->
     <script src="js/gyroscope.js"></script>
     <script src="js/pedometer.js"></script>
     <script src="js/avatar3d.js"></script>

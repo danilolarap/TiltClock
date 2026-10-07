@@ -4,27 +4,27 @@ function initAvatar3D() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container) return;
 
-    const width = container.clientWidth || 280;
-    const height = container.clientHeight || 220;
+    const width = container.clientWidth || 340;
+    const height = container.clientHeight || 340;
 
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, 4.5);
+    // Ángulo de visión cercano para mayor tamaño visual
+    camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+    camera.position.set(0, 0, 3.8);
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
     // Iluminación
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
     dirLight.position.set(2, 4, 5);
     scene.add(dirLight);
 
-    // Anillos Orbitales de Inicio
     createHoloOrbitals();
 
     window.addEventListener("resize", onWindowResize);
@@ -36,16 +36,16 @@ function createHoloOrbitals() {
 
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.35 });
 
-    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.01, 16, 100), ringMat);
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.012, 16, 100), ringMat);
     ring1.rotation.x = Math.PI / 3;
     orbitalRingsGroup.add(ring1);
 
-    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.01, 16, 100), ringMat);
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.012, 16, 100), ringMat);
     ring2.rotation.y = Math.PI / 4;
     orbitalRingsGroup.add(ring2);
 
     const coreMat = new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.2, metalness: 0.8 });
-    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.38, 2), coreMat);
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.48, 2), coreMat);
     orbitalRingsGroup.add(core);
 
     scene.add(orbitalRingsGroup);
@@ -69,16 +69,31 @@ window.loadGLBModel = function(file) {
 
             avatarMesh = gltf.scene;
 
-            // Escala aumentada para aprovechar todo el centro
-            avatarMesh.scale.set(2.2, 2.2, 2.2);
-            avatarMesh.position.set(0, -0.3, 0);
+            // Bounding Box para maximizar tamaño proporcionalmente
+            const box = new THREE.Box3().setFromObject(avatarMesh);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+
+            avatarMesh.position.x += (avatarMesh.position.x - center.x);
+            avatarMesh.position.y += (avatarMesh.position.y - center.y);
+            avatarMesh.position.z += (avatarMesh.position.z - center.z);
+
+            // Escala grande y prominente sin desbordar el reloj
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const targetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
+
+            avatarMesh.scale.set(targetScale, targetScale, targetScale);
+            avatarMesh.position.y = -0.02;
 
             scene.add(avatarMesh);
 
-            // Transformar el botón a Círculo Pequeño en la Esquina Inferior Derecha
             const btnWrapper = document.getElementById("upload-btn-wrapper");
+            const btnText = document.getElementById("upload-btn-text");
             if (btnWrapper) {
-                btnWrapper.className = "btn-state-mini";
+                btnWrapper.className = "btn-state-loaded w-full flex justify-center";
+            }
+            if (btnText) {
+                btnText.innerText = "Cambiar .GLB";
             }
 
             onWindowResize();
