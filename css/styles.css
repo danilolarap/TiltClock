@@ -1,0 +1,14 @@
+@keyframes pulseGlow {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(0.98);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.02);
+    }
+}
+
+#avatar-canvas-container canvas {
+    outline: none;
+}
