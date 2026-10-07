@@ -5,7 +5,7 @@ function initAvatar3D() {
     if (!container) return;
 
     const width = container.clientWidth || 280;
-    const height = container.clientHeight || 200;
+    const height = container.clientHeight || 220;
 
     scene = new THREE.Scene();
 
@@ -16,17 +16,18 @@ function initAvatar3D() {
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
-    // Luces
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    // Iluminación
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
     dirLight.position.set(2, 4, 5);
     scene.add(dirLight);
 
-    // Halo 3D de Inicio
+    // Anillos Orbitales de Inicio
     createHoloOrbitals();
 
+    window.addEventListener("resize", onWindowResize);
     animate();
 }
 
@@ -58,7 +59,6 @@ window.loadGLBModel = function(file) {
         const loader = new THREE.GLTFLoader();
 
         loader.parse(contents, "", (gltf) => {
-            // Eliminar grupo inicial de anillos si existe
             if (orbitalRingsGroup) {
                 scene.remove(orbitalRingsGroup);
                 orbitalRingsGroup = null;
@@ -68,10 +68,20 @@ window.loadGLBModel = function(file) {
             }
 
             avatarMesh = gltf.scene;
-            avatarMesh.scale.set(1.2, 1.2, 1.2);
-            avatarMesh.position.set(0, -0.2, 0);
+
+            // Escala aumentada para aprovechar todo el centro
+            avatarMesh.scale.set(2.2, 2.2, 2.2);
+            avatarMesh.position.set(0, -0.3, 0);
 
             scene.add(avatarMesh);
+
+            // Transformar el botón a Círculo Pequeño en la Esquina Inferior Derecha
+            const btnWrapper = document.getElementById("upload-btn-wrapper");
+            if (btnWrapper) {
+                btnWrapper.className = "btn-state-mini";
+            }
+
+            onWindowResize();
         });
     };
 };
@@ -79,25 +89,30 @@ window.loadGLBModel = function(file) {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotación vinculada a los datos del giroscopio / movimiento del mouse
     if (window.gyroData) {
-        // Convertimos los ángulos de inclinación a radianes
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
         const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
 
-        // Si tenemos cargado el halo de inicio
         if (orbitalRingsGroup) {
             orbitalRingsGroup.rotation.x += (targetRotX - orbitalRingsGroup.rotation.x) * 0.1;
             orbitalRingsGroup.rotation.y += (targetRotY - orbitalRingsGroup.rotation.y) * 0.1;
         }
 
-        // Si se cargó un modelo .GLB personalizado
         if (avatarMesh) {
-            // Movimiento suave e interactivo siguiendo el ratón/giroscopio
             avatarMesh.rotation.x += (targetRotX - avatarMesh.rotation.x) * 0.1;
             avatarMesh.rotation.y += (targetRotY - avatarMesh.rotation.y) * 0.1;
         }
     }
 
     renderer.render(scene, camera);
+}
+
+function onWindowResize() {
+    const container = document.getElementById("avatar-canvas-container");
+    if (!container || !renderer || !camera) return;
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
 }
