@@ -9,7 +9,6 @@ function initAvatar3D() {
 
     scene = new THREE.Scene();
 
-    // Ángulo de visión cercano para mayor tamaño visual
     camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
     camera.position.set(0, 0, 3.8);
 
@@ -25,6 +24,7 @@ function initAvatar3D() {
     dirLight.position.set(2, 4, 5);
     scene.add(dirLight);
 
+    // Átomo Inicial Pequeño y Discreto
     createHoloOrbitals();
 
     window.addEventListener("resize", onWindowResize);
@@ -36,16 +36,17 @@ function createHoloOrbitals() {
 
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.35 });
 
-    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.012, 16, 100), ringMat);
+    // Radio de anillos reducido para que el átomo por defecto sea pequeño
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.008, 16, 100), ringMat);
     ring1.rotation.x = Math.PI / 3;
     orbitalRingsGroup.add(ring1);
 
-    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.012, 16, 100), ringMat);
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.008, 16, 100), ringMat);
     ring2.rotation.y = Math.PI / 4;
     orbitalRingsGroup.add(ring2);
 
     const coreMat = new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.2, metalness: 0.8 });
-    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.48, 2), coreMat);
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.25, 2), coreMat);
     orbitalRingsGroup.add(core);
 
     scene.add(orbitalRingsGroup);
@@ -69,7 +70,7 @@ window.loadGLBModel = function(file) {
 
             avatarMesh = gltf.scene;
 
-            // Bounding Box para maximizar tamaño proporcionalmente
+            // Bounding Box para mantener el tamaño grande y amplio del modelo subido
             const box = new THREE.Box3().setFromObject(avatarMesh);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
@@ -78,7 +79,7 @@ window.loadGLBModel = function(file) {
             avatarMesh.position.y += (avatarMesh.position.y - center.y);
             avatarMesh.position.z += (avatarMesh.position.z - center.z);
 
-            // Escala grande y prominente sin desbordar el reloj
+            // Escala objetivo grande de 2.8m
             const maxDim = Math.max(size.x, size.y, size.z);
             const targetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
 

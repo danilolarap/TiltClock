@@ -1,9 +1,22 @@
-/* Botón Curvo Siguiendo el Contorno Circular Inferior */
+/* Nuevas Fuentes Limpias */
+.font-clock {
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+.font-clean {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Conserva la visibilidad y resplandor de la hora sobre el modelo 3D */
+.time-display-box {
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9), 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Botón Curvo */
 .curved-btn {
     width: 82%;
     max-width: 240px;
     padding: 0.35rem 1rem;
-    /* Curvatura estilizada */
     border-radius: 12px 12px 28px 28px;
     clip-path: ellipse(95% 100% at 50% 0%);
     backdrop-filter: blur(6px);
@@ -23,7 +36,6 @@
     background-color: rgba(6, 182, 212, 0.92);
 }
 
-/* El lienzo 3D ocupa toda la pantalla del reloj sin desplazar texto */
 #avatar-canvas-container {
     pointer-events: auto;
 }
