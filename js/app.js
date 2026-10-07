@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     initGyroscope();
+    initPedometer();
     initAvatar3D();
 
     // Actualizar Reloj en Tiempo Real

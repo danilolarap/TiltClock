@@ -32,29 +32,33 @@
                     <div class="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
                         <span><i class="fa-regular fa-calendar text-cyan-500 mr-1"></i><span id="watch-date">LUN, 24 OCT</span></span>
                         <span>•</span>
-                        <span><i class="fa-solid fa-person-walking text-cyan-500 mr-1"></i><span id="watch-steps">7,420</span> PASOS</span>
+                        <div id="step-container" class="flex items-center gap-1">
+                            <i class="fa-solid fa-person-walking text-cyan-500"></i>
+                            <span id="watch-steps" class="font-bold text-slate-700">1,259</span>
+                            <span class="text-[9px] text-slate-400">PASOS</span>
+                        </div>
                     </div>
 
-                    <!-- Hora Digital Eleva y Reposicionada -->
+                    <!-- Hora Digital -->
                     <div class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 mt-1 flex items-baseline gap-1">
-                        <span id="watch-time">07:46</span>
+                        <span id="watch-time">08:04</span>
                         <span id="watch-ampm" class="text-xs font-bold text-cyan-600">AM</span>
                     </div>
                 </div>
 
-                <!-- Centro: Lienzo 3D para el Avatar (Limpio y sin solapamientos) -->
+                <!-- Centro: Lienzo 3D para el Avatar (Limpio) -->
                 <div class="relative flex-1 w-full flex items-center justify-center my-1">
                     <div id="avatar-canvas-container" class="absolute inset-0 w-full h-full flex items-center justify-center"></div>
                 </div>
 
-                <!-- Footer: Batería y Botón Cargar Avatar -->
+                <!-- Footer: Batería y Botón Cargar Avatar Centrado -->
                 <div class="z-10 flex flex-col items-center gap-2 w-full mb-1">
                     <div class="flex items-center justify-center w-full text-[10px] text-slate-500 font-semibold">
-                        <span><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1"></i><span id="watch-battery">85%</span> BATERÍA</span>
+                        <span><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1"></i><span id="watch-battery">85%</span></span>
                     </div>
 
-                    <!-- Botón Cargar Avatar GLB -->
-                    <label class="bg-cyan-500 hover:bg-cyan-600 active:scale-95 text-white font-bold text-[11px] px-4 py-1.5 rounded-full shadow-md cursor-pointer transition flex items-center gap-1.5">
+                    <!-- Botón Cargar Avatar GLB Centrado -->
+                    <label class="bg-cyan-500 hover:bg-cyan-600 active:scale-95 text-white font-bold text-[11px] px-5 py-1.5 rounded-full shadow-md cursor-pointer transition flex items-center gap-1.5">
                         <i class="fa-solid fa-box-archive text-xs"></i>
                         <span>Cargar Avatar .GLB</span>
                         <input type="file" id="glb-input" accept=".glb,.gltf" class="hidden">
@@ -76,6 +80,7 @@
 
     <!-- Módulos de la Aplicación -->
     <script src="js/gyroscope.js"></script>
+    <script src="js/pedometer.js"></script>
     <script src="js/avatar3d.js"></script>
     <script src="js/app.js"></script>
 </body>
