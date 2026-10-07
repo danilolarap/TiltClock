@@ -17,14 +17,14 @@ function initAvatar3D() {
     container.appendChild(renderer.domElement);
 
     // Luces
-    const ambientLight = new THREE.AmbientLight(0x06b6d4, 0.9);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
     dirLight.position.set(2, 4, 5);
     scene.add(dirLight);
 
-    // Halo 3D Inicial
+    // Halo 3D de Inicio
     createHoloOrbitals();
 
     animate();
@@ -44,8 +44,8 @@ function createHoloOrbitals() {
     orbitalRingsGroup.add(ring2);
 
     const coreMat = new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.2, metalness: 0.8 });
-    avatarMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.38, 2), coreMat);
-    orbitalRingsGroup.add(avatarMesh);
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.38, 2), coreMat);
+    orbitalRingsGroup.add(core);
 
     scene.add(orbitalRingsGroup);
 }
@@ -58,8 +58,14 @@ window.loadGLBModel = function(file) {
         const loader = new THREE.GLTFLoader();
 
         loader.parse(contents, "", (gltf) => {
-            if (orbitalRingsGroup) scene.remove(orbitalRingsGroup);
-            if (avatarMesh) scene.remove(avatarMesh);
+            // Eliminar grupo inicial de anillos si existe
+            if (orbitalRingsGroup) {
+                scene.remove(orbitalRingsGroup);
+                orbitalRingsGroup = null;
+            }
+            if (avatarMesh) {
+                scene.remove(avatarMesh);
+            }
 
             avatarMesh = gltf.scene;
             avatarMesh.scale.set(1.2, 1.2, 1.2);
@@ -73,17 +79,23 @@ window.loadGLBModel = function(file) {
 function animate() {
     requestAnimationFrame(animate);
 
+    // Rotación vinculada a los datos del giroscopio / movimiento del mouse
     if (window.gyroData) {
+        // Convertimos los ángulos de inclinación a radianes
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
         const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
 
+        // Si tenemos cargado el halo de inicio
         if (orbitalRingsGroup) {
             orbitalRingsGroup.rotation.x += (targetRotX - orbitalRingsGroup.rotation.x) * 0.1;
             orbitalRingsGroup.rotation.y += (targetRotY - orbitalRingsGroup.rotation.y) * 0.1;
         }
 
+        // Si se cargó un modelo .GLB personalizado
         if (avatarMesh) {
-            avatarMesh.rotation.y += 0.01;
+            // Movimiento suave e interactivo siguiendo el ratón/giroscopio
+            avatarMesh.rotation.x += (targetRotX - avatarMesh.rotation.x) * 0.1;
+            avatarMesh.rotation.y += (targetRotY - avatarMesh.rotation.y) * 0.1;
         }
     }
 
