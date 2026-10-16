@@ -1,11 +1,10 @@
-/* Módulo renderizado 3D con presets de Átomo y Zorro */
-let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
+/* Módulo renderizado 3D con plano receptor de sombras visible */
+let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
 
-/* Fuente CDN estable para el zorro animado */
 const PRESET_MODELS = {
     fox: [
         "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
@@ -13,7 +12,6 @@ const PRESET_MODELS = {
     ]
 };
 
-/* Inicializar escena */
 function initAvatar3D() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container) return;
@@ -30,49 +28,88 @@ function initAvatar3D() {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    /* Sombras activas */
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
     container.appendChild(renderer.domElement);
 
-    /* Iluminación básica */
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
-    scene.add(ambientLight);
+    /* Luz de Techo */
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.0);
+    scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    dirLight.position.set(2, 4, 5);
+    /* Luz Principal Proyectora de Sombras */
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    dirLight.position.set(2, 4, 3);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.camera.near = 0.1;
+    dirLight.shadow.camera.far = 10;
+    dirLight.shadow.bias = -0.0005;
     scene.add(dirLight);
 
-    /* Objeto inicial */
+    /* Luz Cyan de Acento */
+    const pointLight = new THREE.PointLight(0x06b6d4, 2.5, 6);
+    pointLight.position.set(-2, 0, 2);
+    scene.add(pointLight);
+
+    /* Plano receptor de sombra en el suelo */
+    const planeGeo = new THREE.PlaneGeometry(5, 5);
+    const planeMat = new THREE.ShadowMaterial({ opacity: 0.25 });
+    shadowPlane = new THREE.Mesh(planeGeo, planeMat);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -1.1;
+    shadowPlane.receiveShadow = true;
+    scene.add(shadowPlane);
+
     createHoloOrbitals();
 
-    /* Escuchar cambios */
     window.addEventListener("resize", onWindowResize);
     animate();
 }
 
-/* Crear átomo inicial */
 function createHoloOrbitals() {
     clearCurrentAvatar();
 
     orbitalRingsGroup = new THREE.Group();
 
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.35 });
+    /* Anillos metálicos reflectantes PBR */
+    const ringMat = new THREE.MeshStandardMaterial({ 
+        color: 0x06b6d4, 
+        metalness: 0.9, 
+        roughness: 0.1, 
+        wireframe: true 
+    });
 
-    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.008, 16, 100), ringMat);
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.012, 16, 100), ringMat);
     ring1.rotation.x = Math.PI / 3;
+    ring1.castShadow = true;
     orbitalRingsGroup.add(ring1);
 
-    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.008, 16, 100), ringMat);
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.012, 16, 100), ringMat);
     ring2.rotation.y = Math.PI / 4;
+    ring2.castShadow = true;
     orbitalRingsGroup.add(ring2);
 
-    const coreMat = new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.2, metalness: 0.8 });
-    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.25, 2), coreMat);
+    /* Núcleo metálico con sombra activa */
+    const coreMat = new THREE.MeshStandardMaterial({ 
+        color: 0x0891b2, 
+        roughness: 0.15, 
+        metalness: 0.85 
+    });
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28, 2), coreMat);
+    core.castShadow = true;
+    core.receiveShadow = true;
     orbitalRingsGroup.add(core);
 
     orbitalRingsGroup.scale.set(userScaleFactor, userScaleFactor, userScaleFactor);
     scene.add(orbitalRingsGroup);
 }
 
-/* Cargar preset */
 window.loadPresetAvatar = function(type) {
     if (type === 'holo') {
         createHoloOrbitals();
@@ -85,10 +122,7 @@ window.loadPresetAvatar = function(type) {
     const loader = new THREE.GLTFLoader();
 
     function tryLoadSource(index) {
-        if (index >= sources.length) {
-            console.error("No se pudo cargar el modelo preset.");
-            return;
-        }
+        if (index >= sources.length) return;
 
         loader.load(
             sources[index],
@@ -105,7 +139,6 @@ window.loadPresetAvatar = function(type) {
     tryLoadSource(0);
 };
 
-/* Cargar modelo GLB local del usuario */
 window.loadGLBModel = function(file) {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
@@ -119,13 +152,18 @@ window.loadGLBModel = function(file) {
     };
 };
 
-/* Procesar y posicionar GLTF */
 function setupLoadedGLTF(gltf) {
     clearCurrentAvatar();
 
     const rawMesh = gltf.scene;
 
-    /* Centrar modelo */
+    rawMesh.traverse((child) => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+    });
+
     const box = new THREE.Box3().setFromObject(rawMesh);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
@@ -134,18 +172,15 @@ function setupLoadedGLTF(gltf) {
     rawMesh.position.y = -center.y - 0.02;
     rawMesh.position.z = -center.z;
 
-    /* Escala inicial base */
     const maxDim = Math.max(size.x, size.y, size.z);
     baseTargetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
 
-    /* Envolver en grupo */
     avatarMesh = new THREE.Group();
     avatarMesh.add(rawMesh);
 
     applyAvatarScale();
     scene.add(avatarMesh);
 
-    /* Configurar animaciones integradas si existen */
     const animBtn = document.getElementById("anim-toggle-btn");
     if (gltf.animations && gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(rawMesh);
@@ -158,7 +193,6 @@ function setupLoadedGLTF(gltf) {
         if (animBtn) animBtn.classList.add("hidden");
     }
 
-    /* Actualizar interfaz */
     const btnWrapper = document.getElementById("upload-btn-wrapper");
     const btnText = document.getElementById("upload-btn-text");
     if (btnWrapper) {
@@ -172,7 +206,6 @@ function setupLoadedGLTF(gltf) {
     onWindowResize();
 }
 
-/* Limpiar avatar actual */
 function clearCurrentAvatar() {
     if (mixer) {
         mixer.stopAllAction();
@@ -190,7 +223,6 @@ function clearCurrentAvatar() {
     if (animBtn) animBtn.classList.add("hidden");
 }
 
-/* Alternar animación play/pause */
 window.toggleAvatarAnimation = function() {
     if (!mixer || !activeAction) return;
 
@@ -206,7 +238,6 @@ window.toggleAvatarAnimation = function() {
     }
 };
 
-/* Ajustar escala manual */
 window.zoomAvatar = function(delta) {
     if (!avatarMesh && !orbitalRingsGroup) return;
 
@@ -220,20 +251,17 @@ window.zoomAvatar = function(delta) {
     }
 };
 
-/* Aplicar escala total */
 function applyAvatarScale() {
     if (!avatarMesh) return;
     const finalScale = baseTargetScale * userScaleFactor;
     avatarMesh.scale.set(finalScale, finalScale, finalScale);
 }
 
-/* Bucle animación */
 function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock ? clock.getDelta() : 0.016;
 
-    /* Actualizar mezclador de animación */
     if (mixer && isAnimationPlaying) {
         mixer.update(delta);
     }
@@ -242,13 +270,11 @@ function animate() {
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
         const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
 
-        /* Rotación orbitales */
         if (orbitalRingsGroup) {
             orbitalRingsGroup.rotation.x += (targetRotX - orbitalRingsGroup.rotation.x) * 0.1;
             orbitalRingsGroup.rotation.y += (targetRotY - orbitalRingsGroup.rotation.y) * 0.1;
         }
 
-        /* Rotación modelo */
         if (avatarMesh) {
             avatarMesh.rotation.x += (targetRotX - avatarMesh.rotation.x) * 0.1;
             avatarMesh.rotation.y += (targetRotY - avatarMesh.rotation.y) * 0.1;
@@ -258,7 +284,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-/* Reajustar dimensiones */
 function onWindowResize() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container || !renderer || !camera) return;
@@ -275,5 +300,4 @@ function onWindowResize() {
     renderer.setSize(width, height);
 }
 
-/* Exportar función global */
 window.onWindowResize = onWindowResize;
