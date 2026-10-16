@@ -134,6 +134,7 @@ input[type=number] {
     cursor: pointer;
     user-select: none;
     backdrop-filter: blur(8px);
+    touch-action: manipulation;
 }
 
 /* Anillo de progreso SVG */

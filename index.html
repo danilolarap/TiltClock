@@ -108,12 +108,12 @@
                     <circle id="step-progress-ring" cx="100" cy="100" r="80" stroke="currentColor" stroke-width="3" class="text-cyan-500 step-ring-circle" fill="none" stroke-linecap="round"/>
                 </svg>
 
-                <!-- Botones Flotantes Ajuste Escala y Animación -->
+                <!-- Botones Flotantes Ajuste Escala y Animación con Hold Zoom -->
                 <div class="scale-controls-container absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5">
-                    <button onclick="window.zoomAvatar(0.1)" title="Aumentar tamaño" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
+                    <button onmousedown="window.startZoomHold(0.1)" onmouseup="window.stopZoomHold()" onmouseleave="window.stopZoomHold()" ontouchstart="window.startZoomHold(0.1)" ontouchend="window.stopZoomHold()" title="Aumentar tamaño (mantén pulsado)" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
                         <i class="fa-solid fa-plus"></i>
                     </button>
-                    <button onclick="window.zoomAvatar(-0.1)" title="Reducir tamaño" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
+                    <button onmousedown="window.startZoomHold(-0.1)" onmouseup="window.stopZoomHold()" onmouseleave="window.stopZoomHold()" ontouchstart="window.startZoomHold(-0.1)" ontouchend="window.stopZoomHold()" title="Reducir tamaño (mantén pulsado)" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
                         <i class="fa-solid fa-minus"></i>
                     </button>
                     <button id="anim-toggle-btn" onclick="window.toggleAvatarAnimation()" title="Pausar / Reproducir animación" class="hidden scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">

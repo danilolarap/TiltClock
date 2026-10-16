@@ -1,9 +1,13 @@
-/* Módulo renderizado 3D con sombras y controles táctiles móviles */
+/* Módulo renderizado 3D con soporte para pulsación continua de zoom (+/-) */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
+
+/* Controladores para pulsación continua (Hold zoom) */
+let zoomInterval = null;
+let zoomTimeout = null;
 
 /* Variables para gestos táctiles y ratón */
 let isDragging = false;
@@ -312,6 +316,7 @@ window.toggleAvatarAnimation = function() {
     }
 };
 
+/* Ajustar escala manual de forma inmediata */
 window.zoomAvatar = function(delta) {
     if (!avatarMesh && !orbitalRingsGroup) return;
 
@@ -319,6 +324,34 @@ window.zoomAvatar = function(delta) {
     localStorage.setItem('tiltclock_scale', userScaleFactor.toFixed(2));
 
     applyAvatarScale();
+};
+
+/* Iniciar pulsación continua para zoom manual */
+window.startZoomHold = function(delta) {
+    /* Primer incremento por clic único */
+    window.zoomAvatar(delta);
+
+    /* Cancelar pulsaciones anteriores */
+    window.stopZoomHold();
+
+    /* Iniciar repetición tras 250ms de pulsación continua */
+    zoomTimeout = setTimeout(() => {
+        zoomInterval = setInterval(() => {
+            window.zoomAvatar(delta * 0.3);
+        }, 50);
+    }, 250);
+};
+
+/* Detener pulsación continua */
+window.stopZoomHold = function() {
+    if (zoomTimeout) {
+        clearTimeout(zoomTimeout);
+        zoomTimeout = null;
+    }
+    if (zoomInterval) {
+        clearInterval(zoomInterval);
+        zoomInterval = null;
+    }
 };
 
 function applyAvatarScale() {
@@ -339,7 +372,7 @@ function animate() {
         mixer.update(delta);
     }
 
-    /* Giroscopio como suavizado ambiental si no se esta arrastrando */
+    /* Giroscopio como suavizado ambiental si no se está arrastrando */
     if (window.gyroData && !isDragging) {
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
         const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
