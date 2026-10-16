@@ -1,18 +1,14 @@
-/* Módulo renderizado 3D con presets corregidos */
+/* Módulo renderizado 3D con presets de Átomo y Zorro */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
 
-/* Fuentes con modelos 3D estables */
+/* Fuente CDN estable para el zorro animado */
 const PRESET_MODELS = {
-    astronaut: [
-        "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Astronaut/glTF-Binary/Astronaut.glb",
-        "assets/models/astronaut.glb"
-    ],
     fox: [
-        "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Fox/glTF-Binary/Fox.glb",
+        "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
         "assets/models/fox.glb"
     ]
 };
@@ -90,7 +86,7 @@ window.loadPresetAvatar = function(type) {
 
     function tryLoadSource(index) {
         if (index >= sources.length) {
-            console.error("No se pudo cargar el modelo desde ninguna fuente.");
+            console.error("No se pudo cargar el modelo preset.");
             return;
         }
 
