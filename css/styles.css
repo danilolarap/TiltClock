@@ -7,6 +7,17 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* Ocultar flechas del input number */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
 /* Animación de flotado suave para el smartwatch */
 @keyframes floatWatch {
     0%, 100% { transform: translateY(0px); }
