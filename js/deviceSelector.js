@@ -71,11 +71,11 @@
             }
         });
 
-        /* Redimensionar 3D */
+        /* Redimensionar 3D al finalizar la animación CSS */
         if (typeof window.onWindowResize === 'function') {
             setTimeout(() => {
                 window.onWindowResize();
-            }, 50);
+            }, 350);
         }
     }
 

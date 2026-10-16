@@ -1,6 +1,6 @@
 /* Módulo renderizado 3D */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
-let originalModelSize = null;
+let baseTargetScale = 1.0;
 
 /* Inicializar escena */
 function initAvatar3D() {
@@ -77,21 +77,25 @@ window.loadGLBModel = function(file) {
 
             avatarMesh = gltf.scene;
 
-            /* Centrar modelo */
+            /* Centrar modelo respetando geometría original */
             const box = new THREE.Box3().setFromObject(avatarMesh);
-            originalModelSize = box.getSize(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
 
-            avatarMesh.position.x += (avatarMesh.position.x - center.x);
-            avatarMesh.position.y += (avatarMesh.position.y - center.y);
-            avatarMesh.position.z += (avatarMesh.position.z - center.z);
+            avatarMesh.position.x = -center.x;
+            avatarMesh.position.y = -center.y - 0.02;
+            avatarMesh.position.z = -center.z;
 
-            /* Aplicar escala fija base */
-            const maxDim = Math.max(originalModelSize.x, originalModelSize.y, originalModelSize.z);
-            const targetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
-            avatarMesh.scale.set(targetScale, targetScale, targetScale);
-            avatarMesh.position.y = -0.02;
+            /* Escala absoluta fija de 2.8m */
+            const maxDim = Math.max(size.x, size.y, size.z);
+            baseTargetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
 
+            /* Envolver en contenedor neutro */
+            const wrapperGroup = new THREE.Group();
+            wrapperGroup.add(avatarMesh);
+            wrapperGroup.scale.set(baseTargetScale, baseTargetScale, baseTargetScale);
+
+            avatarMesh = wrapperGroup;
             scene.add(avatarMesh);
 
             /* Actualizar interfaz */
@@ -143,20 +147,11 @@ function onWindowResize() {
     const height = container.clientHeight;
     if (width === 0 || height === 0) return;
 
-    const aspect = width / height;
-    camera.aspect = aspect;
+    camera.aspect = width / height;
+    camera.position.set(0, 0, 3.8);
     camera.fov = 50;
-
-    /* Ajustar distancia de cámara según la anchura disponible */
-    if (aspect < 1) {
-        /* Formato angosto (Xiaomi Band) */
-        camera.position.z = 3.8 / aspect;
-    } else {
-        /* Formato cuadrado / circular */
-        camera.position.z = 3.8;
-    }
-
     camera.updateProjectionMatrix();
+
     renderer.setSize(width, height);
 }
 
