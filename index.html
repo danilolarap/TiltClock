@@ -36,7 +36,7 @@
 
         <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
 
-        <!-- Selector de Avatares Predefinidos (Átomo y Zorro) -->
+        <!-- Selector de Avatares Predefinidos -->
         <div class="flex items-center gap-1.5">
             <span id="avatar-label" class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1 font-clean">Avatar:</span>
             <button onclick="window.loadPresetAvatar('holo')" title="Átomo Holográfico" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
@@ -86,7 +86,13 @@
                 <!-- Lienzo 3D -->
                 <div id="avatar-canvas-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
 
-                <!-- Botones Flotantes Ajuste Escala y Animación (Aparecen al pasar el cursor) -->
+                <!-- Anillo SVG Meta de Pasos -->
+                <svg class="absolute inset-0 w-full h-full z-10 pointer-events-none transform -rotate-90" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="2.5" class="text-slate-200/40 dark:text-slate-800/40" fill="none"/>
+                    <circle id="step-progress-ring" cx="100" cy="100" r="80" stroke="currentColor" stroke-width="3" class="text-cyan-500 step-ring-circle" fill="none" stroke-linecap="round"/>
+                </svg>
+
+                <!-- Botones Flotantes Ajuste Escala y Animación -->
                 <div class="scale-controls-container absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5">
                     <button onclick="window.zoomAvatar(0.1)" title="Aumentar tamaño" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
                         <i class="fa-solid fa-plus"></i>
