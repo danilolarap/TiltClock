@@ -1,9 +1,15 @@
-/* Módulo renderizado 3D con persistencia de zoom */
+/* Módulo renderizado 3D con avatares predefinidos */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
+
+/* URLs de modelos predefinidos públicos */
+const PRESET_MODELS = {
+    astronaut: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Astronaut/glTF-Binary/Astronaut.glb",
+    robot: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Fox/glTF-Binary/Fox.glb"
+};
 
 /* Inicializar escena */
 function initAvatar3D() {
@@ -42,6 +48,8 @@ function initAvatar3D() {
 
 /* Crear átomo inicial */
 function createHoloOrbitals() {
+    clearCurrentAvatar();
+
     orbitalRingsGroup = new THREE.Group();
 
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.35 });
@@ -62,7 +70,23 @@ function createHoloOrbitals() {
     scene.add(orbitalRingsGroup);
 }
 
-/* Cargar modelo GLB */
+/* Cargar preset por URL */
+window.loadPresetAvatar = function(type) {
+    if (type === 'holo') {
+        createHoloOrbitals();
+        return;
+    }
+
+    const url = PRESET_MODELS[type];
+    if (!url) return;
+
+    const loader = new THREE.GLTFLoader();
+    loader.load(url, (gltf) => {
+        setupLoadedGLTF(gltf);
+    });
+};
+
+/* Cargar modelo GLB local */
 window.loadGLBModel = function(file) {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
@@ -71,69 +95,81 @@ window.loadGLBModel = function(file) {
         const loader = new THREE.GLTFLoader();
 
         loader.parse(contents, "", (gltf) => {
-            /* Limpiar modelo y animaciones previas */
-            if (mixer) {
-                mixer.stopAllAction();
-                mixer = null;
-            }
-            if (orbitalRingsGroup) {
-                scene.remove(orbitalRingsGroup);
-                orbitalRingsGroup = null;
-            }
-            if (avatarMesh) {
-                scene.remove(avatarMesh);
-            }
-
-            const rawMesh = gltf.scene;
-
-            /* Centrar modelo */
-            const box = new THREE.Box3().setFromObject(rawMesh);
-            const size = box.getSize(new THREE.Vector3());
-            const center = box.getCenter(new THREE.Vector3());
-
-            rawMesh.position.x = -center.x;
-            rawMesh.position.y = -center.y - 0.02;
-            rawMesh.position.z = -center.z;
-
-            /* Escala inicial base */
-            const maxDim = Math.max(size.x, size.y, size.z);
-            baseTargetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
-
-            /* Envolver en grupo */
-            avatarMesh = new THREE.Group();
-            avatarMesh.add(rawMesh);
-
-            applyAvatarScale();
-            scene.add(avatarMesh);
-
-            /* Configurar animaciones integradas si existen */
-            const animBtn = document.getElementById("anim-toggle-btn");
-            if (gltf.animations && gltf.animations.length > 0) {
-                mixer = new THREE.AnimationMixer(rawMesh);
-                activeAction = mixer.clipAction(gltf.animations[0]);
-                activeAction.play();
-                isAnimationPlaying = true;
-
-                if (animBtn) animBtn.classList.remove("hidden");
-            } else {
-                if (animBtn) animBtn.classList.add("hidden");
-            }
-
-            /* Actualizar interfaz */
-            const btnWrapper = document.getElementById("upload-btn-wrapper");
-            const btnText = document.getElementById("upload-btn-text");
-            if (btnWrapper) {
-                btnWrapper.className = "btn-state-loaded w-full flex justify-center";
-            }
-            if (btnText) {
-                const t = typeof window.getTranslations === "function" ? window.getTranslations() : null;
-                btnText.innerText = t ? t.uploadLoaded : "Cambiar .GLB";
-            }
-
-            onWindowResize();
+            setupLoadedGLTF(gltf);
         });
     };
 };
+
+/* Procesar y posicionar GLTF */
+function setupLoadedGLTF(gltf) {
+    clearCurrentAvatar();
+
+    const rawMesh = gltf.scene;
+
+    /* Centrar modelo */
+    const box = new THREE.Box3().setFromObject(rawMesh);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    rawMesh.position.x = -center.x;
+    rawMesh.position.y = -center.y - 0.02;
+    rawMesh.position.z = -center.z;
+
+    /* Escala inicial base */
+    const maxDim = Math.max(size.x, size.y, size.z);
+    baseTargetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
+
+    /* Envolver en grupo */
+    avatarMesh = new THREE.Group();
+    avatarMesh.add(rawMesh);
+
+    applyAvatarScale();
+    scene.add(avatarMesh);
+
+    /* Configurar animaciones integradas si existen */
+    const animBtn = document.getElementById("anim-toggle-btn");
+    if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(rawMesh);
+        activeAction = mixer.clipAction(gltf.animations[0]);
+        activeAction.play();
+        isAnimationPlaying = true;
+
+        if (animBtn) animBtn.classList.remove("hidden");
+    } else {
+        if (animBtn) animBtn.classList.add("hidden");
+    }
+
+    /* Actualizar interfaz */
+    const btnWrapper = document.getElementById("upload-btn-wrapper");
+    const btnText = document.getElementById("upload-btn-text");
+    if (btnWrapper) {
+        btnWrapper.className = "btn-state-loaded w-full flex justify-center";
+    }
+    if (btnText) {
+        const t = typeof window.getTranslations === "function" ? window.getTranslations() : null;
+        btnText.innerText = t ? t.uploadLoaded : "Cambiar .GLB";
+    }
+
+    onWindowResize();
+}
+
+/* Limpiar avatar actual */
+function clearCurrentAvatar() {
+    if (mixer) {
+        mixer.stopAllAction();
+        mixer = null;
+    }
+    if (orbitalRingsGroup) {
+        scene.remove(orbitalRingsGroup);
+        orbitalRingsGroup = null;
+    }
+    if (avatarMesh) {
+        scene.remove(avatarMesh);
+        avatarMesh = null;
+    }
+    const animBtn = document.getElementById("anim-toggle-btn");
+    if (animBtn) animBtn.classList.add("hidden");
+}
 
 /* Alternar animación play/pause */
 window.toggleAvatarAnimation = function() {
