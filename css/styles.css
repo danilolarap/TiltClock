@@ -1,4 +1,4 @@
-/* Nuevas Fuentes Limpias */
+/* Tipografías principales */
 .font-clock {
     font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
 }
@@ -7,12 +7,59 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Conserva la visibilidad y resplandor de la hora sobre el modelo 3D */
+/* Sombra de hora */
 .time-display-box {
     text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9), 0 0 2px rgba(0, 0, 0, 0.15);
 }
 
-/* Botón Curvo */
+/* Transición del marco */
+.watch-frame {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Formato circular */
+.watch-frame.device-circular {
+    width: 340px;
+    height: 340px;
+    border-radius: 9999px;
+}
+.watch-frame.device-circular .watch-screen {
+    border-radius: 9999px;
+}
+.watch-strap-top.device-circular,
+.watch-strap-bottom.device-circular {
+    width: 112px;
+}
+
+/* Formato cuadrado */
+.watch-frame.device-square {
+    width: 320px;
+    height: 380px;
+    border-radius: 56px;
+}
+.watch-frame.device-square .watch-screen {
+    border-radius: 42px;
+}
+.watch-strap-top.device-square,
+.watch-strap-bottom.device-square {
+    width: 160px;
+}
+
+/* Formato píldora */
+.watch-frame.device-band {
+    width: 220px;
+    height: 440px;
+    border-radius: 110px;
+}
+.watch-frame.device-band .watch-screen {
+    border-radius: 95px;
+}
+.watch-strap-top.device-band,
+.watch-strap-bottom.device-band {
+    width: 90px;
+}
+
+/* Botón inferior */
 .curved-btn {
     width: 82%;
     max-width: 240px;
@@ -29,17 +76,19 @@
 }
 
 .btn-state-loaded .curved-btn {
-    width: 70%;
+    width: 75%;
     max-width: 180px;
     padding: 0.25rem 0.85rem;
     border-radius: 10px 10px 24px 24px;
     background-color: rgba(6, 182, 212, 0.92);
 }
 
+/* Contenedor canvas */
 #avatar-canvas-container {
     pointer-events: auto;
 }
 
+/* Estilo canvas */
 #avatar-canvas-container canvas {
     outline: none;
 }

@@ -1,9 +1,13 @@
+/* Carga inicial */
 document.addEventListener("DOMContentLoaded", () => {
     initGyroscope();
     initPedometer();
     initAvatar3D();
+    if (typeof window.initDeviceSelector === "function") {
+        window.initDeviceSelector();
+    }
 
-    // Actualizar Reloj en Tiempo Real
+    /* Actualizar tiempo */
     function updateWatchTime() {
         const now = new Date();
         let hours = now.getHours();
@@ -13,24 +17,31 @@ document.addEventListener("DOMContentLoaded", () => {
         hours = hours % 12 || 12;
         const formattedHours = String(hours).padStart(2, "0");
 
-        document.getElementById("watch-time").innerText = `${formattedHours}:${minutes}`;
-        document.getElementById("watch-ampm").innerText = ampm;
+        const watchTimeElem = document.getElementById("watch-time");
+        const watchAmpmElem = document.getElementById("watch-ampm");
+        const watchDateElem = document.getElementById("watch-date");
 
-        // Fecha
-        const options = { weekday: 'short', day: 'numeric', month: 'short' };
-        const dateStr = now.toLocaleDateString('es-ES', options).toUpperCase();
-        document.getElementById("watch-date").innerText = dateStr;
+        if (watchTimeElem) watchTimeElem.innerText = `${formattedHours}:${minutes}`;
+        if (watchAmpmElem) watchAmpmElem.innerText = ampm;
+
+        /* Formatear fecha */
+        if (watchDateElem) {
+            const options = { weekday: 'short', day: 'numeric', month: 'short' };
+            const dateStr = now.toLocaleDateString('es-ES', options).toUpperCase();
+            watchDateElem.innerText = dateStr;
+        }
     }
 
+    /* Bucle tiempo */
     setInterval(updateWatchTime, 1000);
     updateWatchTime();
 
-    // Evento para Cargar Archivo .GLB
+    /* Cargar GLB */
     const glbInput = document.getElementById("glb-input");
     if (glbInput) {
         glbInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
-            if (file) {
+            if (file && typeof window.loadGLBModel === "function") {
                 window.loadGLBModel(file);
             }
         });
