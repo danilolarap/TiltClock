@@ -1,4 +1,4 @@
-/* Módulo renderizado 3D con avatares ampliados */
+/* Módulo renderizado 3D con soporte para compresión DRACO y modelos comprimidos */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -13,7 +13,6 @@ let previousTouchPosition = { x: 0, y: 0 };
 let initialPinchDistance = null;
 let initialScaleOnPinch = 1.0;
 
-/* Mapeo de rutas locales */
 const PRESET_MODELS = {
     fox: [
         "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
@@ -24,6 +23,19 @@ const PRESET_MODELS = {
     moneda: ["assets/models/moneda.glb"],
     riot: ["assets/models/riot.glb"]
 };
+
+/* Configuración de cargador GLTF con soporte Draco */
+function createGLTFLoader() {
+    const loader = new THREE.GLTFLoader();
+    
+    if (typeof THREE.DRACOLoader !== 'undefined') {
+        const dracoLoader = new THREE.DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.4.3/');
+        loader.setDRACOLoader(dracoLoader);
+    }
+
+    return loader;
+}
 
 function initAvatar3D() {
     const container = document.getElementById("avatar-canvas-container");
@@ -193,11 +205,11 @@ window.loadPresetAvatar = function(type) {
     const sources = PRESET_MODELS[type];
     if (!sources || !sources.length) return;
 
-    const loader = new THREE.GLTFLoader();
+    const loader = createGLTFLoader();
 
     function tryLoadSource(index) {
         if (index >= sources.length) {
-            console.warn("No se pudo cargar el modelo preset desde la ruta local.");
+            console.warn("No se pudo cargar el modelo preset.");
             return;
         }
 
@@ -207,7 +219,8 @@ window.loadPresetAvatar = function(type) {
                 setupLoadedGLTF(gltf);
             },
             undefined,
-            () => {
+            (err) => {
+                console.error("Error al cargar modelo:", err);
                 tryLoadSource(index + 1);
             }
         );
@@ -221,7 +234,7 @@ window.loadGLBModel = function(file) {
     reader.readAsArrayBuffer(file);
     reader.onload = function(e) {
         const contents = e.target.result;
-        const loader = new THREE.GLTFLoader();
+        const loader = createGLTFLoader();
 
         loader.parse(contents, "", (gltf) => {
             setupLoadedGLTF(gltf);
