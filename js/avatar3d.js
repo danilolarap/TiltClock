@@ -1,14 +1,20 @@
-/* Módulo renderizado 3D con avatares predefinidos locales */
+/* Módulo renderizado 3D con presets estables */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
 
-/* Rutas locales para evitar bloqueos CORS */
+/* Presets locales con fallback a CDNs con headers CORS completos */
 const PRESET_MODELS = {
-    astronaut: "assets/models/astronaut.glb",
-    robot: "assets/models/fox.glb"
+    astronaut: [
+        "assets/models/astronaut.glb",
+        "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Astronaut/glTF-Binary/Astronaut.glb"
+    ],
+    robot: [
+        "assets/models/fox.glb",
+        "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb"
+    ]
 };
 
 /* Inicializar escena */
@@ -70,30 +76,41 @@ function createHoloOrbitals() {
     scene.add(orbitalRingsGroup);
 }
 
-/* Cargar preset */
+/* Cargar preset con fallback automático */
 window.loadPresetAvatar = function(type) {
     if (type === 'holo') {
         createHoloOrbitals();
         return;
     }
 
-    const url = PRESET_MODELS[type];
-    if (!url) return;
+    const sources = PRESET_MODELS[type];
+    if (!sources || !sources.length) return;
 
     const loader = new THREE.GLTFLoader();
-    loader.load(
-        url, 
-        (gltf) => {
-            setupLoadedGLTF(gltf);
-        },
-        undefined,
-        (error) => {
-            console.warn("No se pudo cargar el modelo preset local. Asegúrate de que el archivo existe en " + url, error);
+
+    function tryLoadSource(index) {
+        if (index >= sources.length) {
+            console.error("No se pudo cargar el modelo preset desde ninguna de las fuentes proporcionadas.");
+            return;
         }
-    );
+
+        loader.load(
+            sources[index],
+            (gltf) => {
+                setupLoadedGLTF(gltf);
+            },
+            undefined,
+            (error) => {
+                console.warn(`Falló la carga desde ${sources[index]}. Intentando fuente alternativa...`, error);
+                tryLoadSource(index + 1);
+            }
+        );
+    }
+
+    tryLoadSource(0);
 };
 
-/* Cargar modelo GLB local */
+/* Cargar modelo GLB local del usuario */
 window.loadGLBModel = function(file) {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
