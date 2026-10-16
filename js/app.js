@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof window.initDeviceSelector === "function") {
         window.initDeviceSelector();
     }
+    if (typeof window.initThemeAndLang === "function") {
+        window.initThemeAndLang();
+    }
 
     /* Actualizar tiempo */
     function updateWatchTime() {
@@ -26,11 +29,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         /* Formatear fecha */
         if (watchDateElem) {
-            const options = { weekday: 'short', day: 'numeric', month: 'short' };
-            const dateStr = now.toLocaleDateString('es-ES', options).toUpperCase();
-            watchDateElem.innerText = dateStr;
+            const t = typeof window.getTranslations === "function" ? window.getTranslations() : null;
+            if (t) {
+                const dayName = t.days[now.getDay()];
+                const monthName = t.months[now.getMonth()];
+                const dateNum = now.getDate();
+                watchDateElem.innerText = `${dayName}, ${dateNum} ${monthName}`;
+            } else {
+                const options = { weekday: 'short', day: 'numeric', month: 'short' };
+                watchDateElem.innerText = now.toLocaleDateString('es-ES', options).toUpperCase();
+            }
         }
     }
+
+    /* Exponer función */
+    window.updateWatchTime = updateWatchTime;
 
     /* Bucle tiempo */
     setInterval(updateWatchTime, 1000);

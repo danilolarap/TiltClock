@@ -15,20 +15,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-slate-100 text-slate-800 flex flex-col items-center justify-center min-h-screen font-sans select-none p-4 gap-6">
+<body class="bg-slate-100 text-slate-800 flex flex-col items-center justify-center min-h-screen font-sans select-none p-4 gap-6 transition-colors duration-300">
 
-    <!-- Selector modelos -->
-    <header class="bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-200/80 flex items-center gap-2 z-30">
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1 font-clean">Modelo:</span>
-        <button data-device-target="circular" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500 text-white shadow transition-all flex items-center gap-1.5 font-clean">
-            <i class="fa-regular fa-circle text-sm"></i> Circular
-        </button>
-        <button data-device-target="square" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
-            <i class="fa-regular fa-square text-sm"></i> Apple Watch
-        </button>
-        <button data-device-target="band" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
-            <i class="fa-solid fa-capsules text-sm"></i> Xiaomi Band
-        </button>
+    <!-- Barra de Controles -->
+    <header class="control-bar-box bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-200/80 flex flex-wrap items-center justify-center gap-3 z-30 transition-colors duration-300">
+        
+        <!-- Selector modelos -->
+        <div class="flex items-center gap-2">
+            <span id="model-label" class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1 font-clean">Modelo:</span>
+            <button data-device-target="circular" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500 text-white shadow transition-all flex items-center gap-1.5 font-clean">
+                <i class="fa-regular fa-circle text-sm"></i> <span id="btn-label-circular">Circular</span>
+            </button>
+            <button data-device-target="square" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
+                <i class="fa-regular fa-square text-sm"></i> <span id="btn-label-square">Apple Watch</span>
+            </button>
+            <button data-device-target="band" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
+                <i class="fa-solid fa-capsules text-sm"></i> <span id="btn-label-band">Xiaomi Band</span>
+            </button>
+        </div>
+
+        <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
+
+        <!-- Interruptores Tema/Idioma -->
+        <div class="flex items-center gap-2">
+            <!-- Botón Tema -->
+            <button id="theme-toggle-btn" title="Cambiar Tema" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1.5 font-clean border border-slate-200">
+                <i id="theme-icon" class="fa-solid fa-moon text-slate-600"></i>
+            </button>
+
+            <!-- Botón Idioma -->
+            <button id="lang-toggle-btn" title="Cambiar Idioma" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-globe text-cyan-500"></i>
+                <span id="lang-text">ES</span>
+            </button>
+        </div>
+
     </header>
 
     <!-- Contenedor principal -->
@@ -36,7 +57,7 @@
         
         <!-- Correa superior -->
         <div id="watch-strap-top" class="watch-strap-top device-circular h-16 bg-gradient-to-b from-slate-300 to-slate-200 rounded-t-2xl border-t border-x border-slate-300/60 shadow-inner flex justify-center pt-2 transition-all duration-300">
-            <div class="w-12 h-1 bg-slate-300 rounded-full"></div>
+            <div class="w-12 h-1 bg-slate-300/80 rounded-full"></div>
         </div>
 
         <!-- Marco reloj -->
@@ -47,25 +68,25 @@
             <div id="watch-side-btn" class="absolute -right-2 top-1/3 w-2 h-6 bg-slate-300 rounded-r border border-slate-400/50 shadow"></div>
 
             <!-- Pantalla watchface -->
-            <div class="watch-screen relative w-full h-full bg-slate-50 overflow-hidden border border-slate-200 shadow-inner flex flex-col items-center justify-between p-4 text-cyan-600">
+            <div class="watch-screen relative w-full h-full bg-slate-50 overflow-hidden border border-slate-200 shadow-inner flex flex-col items-center justify-between p-4 text-cyan-600 transition-colors duration-300">
                 
                 <!-- Lienzo 3D -->
                 <div id="avatar-canvas-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
 
                 <!-- Modulo superior -->
                 <div class="z-20 flex flex-col items-center gap-0.5 mt-2 pointer-events-none">
-                    <div class="flex items-center gap-2 text-[10px] text-slate-600 font-bold bg-white/80 px-3 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean">
+                    <div class="glass-card flex items-center gap-2 text-[10px] text-slate-600 font-bold bg-white/80 px-3 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean transition-colors duration-300">
                         <span><i class="fa-regular fa-calendar text-cyan-500 mr-1"></i><span id="watch-date">LUN, 24 OCT</span></span>
                         <span>•</span>
                         <div id="step-container" class="flex items-center gap-1">
                             <i class="fa-solid fa-person-walking text-cyan-500"></i>
                             <span id="watch-steps" class="font-bold text-slate-800">1,259</span>
-                            <span class="text-[9px] text-slate-500">PASOS</span>
+                            <span id="steps-label" class="text-[9px] text-slate-500">PASOS</span>
                         </div>
                     </div>
 
                     <!-- Hora digital -->
-                    <div class="time-display-box mt-1 px-4 py-0.5 rounded-2xl bg-white/75 backdrop-blur-md border border-white/60 shadow-md flex items-baseline gap-1">
+                    <div class="time-display-box mt-1 px-4 py-0.5 rounded-2xl bg-white/75 backdrop-blur-md border border-white/60 shadow-md flex items-baseline gap-1 transition-colors duration-300">
                         <span id="watch-time" class="text-3xl sm:text-4xl font-bold text-slate-900 font-clock tracking-tight">08:27</span>
                         <span id="watch-ampm" class="text-xs font-bold text-cyan-600 font-clock">AM</span>
                     </div>
@@ -75,7 +96,7 @@
                 <div class="z-20 flex flex-col items-center gap-1 w-full mb-1">
                     
                     <!-- Estado bateria -->
-                    <div class="flex items-center justify-center text-[10px] text-slate-700 font-bold bg-white/80 px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean">
+                    <div class="glass-card flex items-center justify-center text-[10px] text-slate-700 font-bold bg-white/80 px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean transition-colors duration-300">
                         <span><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1"></i><span id="watch-battery">85%</span></span>
                     </div>
 
@@ -95,7 +116,7 @@
 
         <!-- Correa inferior -->
         <div id="watch-strap-bottom" class="watch-strap-bottom device-circular h-16 bg-gradient-to-t from-slate-300 to-slate-200 rounded-b-2xl border-b border-x border-slate-300/60 shadow-inner flex justify-center pb-2 transition-all duration-300">
-            <div class="w-12 h-1 bg-slate-300 rounded-full self-end"></div>
+            <div class="w-12 h-1 bg-slate-300/80 rounded-full self-end"></div>
         </div>
     </main>
 
@@ -108,6 +129,7 @@
     <script src="js/pedometer.js"></script>
     <script src="js/avatar3d.js"></script>
     <script src="js/deviceSelector.js"></script>
+    <script src="js/themeAndLang.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

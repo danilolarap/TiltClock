@@ -1,0 +1,112 @@
+/* Tema e idioma */
+(function () {
+    /* Textos por idioma */
+    const TRANSLATIONS = {
+        es: {
+            modelLabel: "Modelo:",
+            circular: "Circular",
+            square: "Apple Watch",
+            band: "Xiaomi Band",
+            stepsLabel: "PASOS",
+            uploadInitial: "Cargar Avatar .GLB",
+            uploadLoaded: "Cambiar .GLB",
+            days: ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'],
+            months: ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
+        },
+        en: {
+            modelLabel: "Model:",
+            circular: "Circular",
+            square: "Apple Watch",
+            band: "Xiaomi Band",
+            stepsLabel: "STEPS",
+            uploadInitial: "Upload .GLB Avatar",
+            uploadLoaded: "Change .GLB",
+            days: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+            months: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+        }
+    };
+
+    let currentTheme = 'light';
+    let currentLang = 'es';
+
+    /* Inicializar controles */
+    function initThemeAndLang() {
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const langBtn = document.getElementById('lang-toggle-btn');
+
+        if (themeBtn) {
+            themeBtn.addEventListener('click', toggleTheme);
+        }
+
+        if (langBtn) {
+            langBtn.addEventListener('click', toggleLang);
+        }
+    }
+
+    /* Alternar tema */
+    function toggleTheme() {
+        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        const body = document.body;
+        const themeIcon = document.getElementById('theme-icon');
+
+        if (currentTheme === 'dark') {
+            body.classList.add('dark-theme');
+            if (themeIcon) themeIcon.className = "fa-solid fa-sun text-amber-400";
+        } else {
+            body.classList.remove('dark-theme');
+            if (themeIcon) themeIcon.className = "fa-solid fa-moon text-slate-600";
+        }
+    }
+
+    /* Alternar idioma */
+    function toggleLang() {
+        currentLang = currentLang === 'es' ? 'en' : 'es';
+        const langText = document.getElementById('lang-text');
+        if (langText) langText.innerText = currentLang.toUpperCase();
+
+        updateTranslations();
+        
+        /* Forzar fecha */
+        if (typeof window.updateWatchTime === 'function') {
+            window.updateWatchTime();
+        }
+    }
+
+    /* Actualizar UI */
+    function updateTranslations() {
+        const t = TRANSLATIONS[currentLang];
+
+        const modelLabel = document.getElementById('model-label');
+        const btnCircular = document.getElementById('btn-label-circular');
+        const btnSquare = document.getElementById('btn-label-square');
+        const btnBand = document.getElementById('btn-label-band');
+        const stepsLabel = document.getElementById('steps-label');
+        const uploadBtnText = document.getElementById('upload-btn-text');
+
+        if (modelLabel) modelLabel.innerText = t.modelLabel;
+        if (btnCircular) btnCircular.innerText = t.circular;
+        if (btnSquare) btnSquare.innerText = t.square;
+        if (btnBand) btnBand.innerText = t.band;
+        if (stepsLabel) stepsLabel.innerText = t.stepsLabel;
+
+        if (uploadBtnText) {
+            const isLoaded = document.getElementById('upload-btn-wrapper')?.classList.contains('btn-state-loaded');
+            uploadBtnText.innerText = isLoaded ? t.uploadLoaded : t.uploadInitial;
+        }
+    }
+
+    /* Obtener idioma */
+    function getCurrentLang() {
+        return currentLang;
+    }
+
+    /* Obtener traducciones */
+    function getTranslations() {
+        return TRANSLATIONS[currentLang];
+    }
+
+    /* Exportar funciones */
+    window.initThemeAndLang = initThemeAndLang;
+    window.getCurrentLang = getCurrentLang;
+    window.getTranslations = getTranslations;
+})();

@@ -1,5 +1,7 @@
+/* Módulo renderizado 3D */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 
+/* Inicializar escena */
 function initAvatar3D() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container) return;
@@ -16,7 +18,7 @@ function initAvatar3D() {
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
-    // Iluminación
+    /* Iluminación básica */
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
     scene.add(ambientLight);
 
@@ -24,19 +26,20 @@ function initAvatar3D() {
     dirLight.position.set(2, 4, 5);
     scene.add(dirLight);
 
-    // Átomo Inicial Pequeño y Discreto
+    /* Objeto inicial */
     createHoloOrbitals();
 
+    /* Escuchar cambios */
     window.addEventListener("resize", onWindowResize);
     animate();
 }
 
+/* Crear átomo inicial */
 function createHoloOrbitals() {
     orbitalRingsGroup = new THREE.Group();
 
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.35 });
 
-    // Radio de anillos reducido para que el átomo por defecto sea pequeño
     const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.008, 16, 100), ringMat);
     ring1.rotation.x = Math.PI / 3;
     orbitalRingsGroup.add(ring1);
@@ -52,6 +55,7 @@ function createHoloOrbitals() {
     scene.add(orbitalRingsGroup);
 }
 
+/* Cargar modelo GLB */
 window.loadGLBModel = function(file) {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
@@ -60,6 +64,7 @@ window.loadGLBModel = function(file) {
         const loader = new THREE.GLTFLoader();
 
         loader.parse(contents, "", (gltf) => {
+            /* Limpiar modelo previo */
             if (orbitalRingsGroup) {
                 scene.remove(orbitalRingsGroup);
                 orbitalRingsGroup = null;
@@ -70,7 +75,7 @@ window.loadGLBModel = function(file) {
 
             avatarMesh = gltf.scene;
 
-            // Bounding Box para mantener el tamaño grande y amplio del modelo subido
+            /* Calcular dimensiones */
             const box = new THREE.Box3().setFromObject(avatarMesh);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
@@ -79,7 +84,7 @@ window.loadGLBModel = function(file) {
             avatarMesh.position.y += (avatarMesh.position.y - center.y);
             avatarMesh.position.z += (avatarMesh.position.z - center.z);
 
-            // Escala objetivo grande de 2.8m
+            /* Ajustar escala */
             const maxDim = Math.max(size.x, size.y, size.z);
             const targetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
 
@@ -88,13 +93,15 @@ window.loadGLBModel = function(file) {
 
             scene.add(avatarMesh);
 
+            /* Actualizar interfaz */
             const btnWrapper = document.getElementById("upload-btn-wrapper");
             const btnText = document.getElementById("upload-btn-text");
             if (btnWrapper) {
                 btnWrapper.className = "btn-state-loaded w-full flex justify-center";
             }
             if (btnText) {
-                btnText.innerText = "Cambiar .GLB";
+                const t = typeof window.getTranslations === "function" ? window.getTranslations() : null;
+                btnText.innerText = t ? t.uploadLoaded : "Cambiar .GLB";
             }
 
             onWindowResize();
@@ -102,6 +109,7 @@ window.loadGLBModel = function(file) {
     };
 };
 
+/* Bucle animación */
 function animate() {
     requestAnimationFrame(animate);
 
@@ -109,11 +117,13 @@ function animate() {
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
         const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
 
+        /* Rotación orbitales */
         if (orbitalRingsGroup) {
             orbitalRingsGroup.rotation.x += (targetRotX - orbitalRingsGroup.rotation.x) * 0.1;
             orbitalRingsGroup.rotation.y += (targetRotY - orbitalRingsGroup.rotation.y) * 0.1;
         }
 
+        /* Rotación modelo */
         if (avatarMesh) {
             avatarMesh.rotation.x += (targetRotX - avatarMesh.rotation.x) * 0.1;
             avatarMesh.rotation.y += (targetRotY - avatarMesh.rotation.y) * 0.1;
@@ -123,6 +133,7 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+/* Reajustar dimensiones */
 function onWindowResize() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container || !renderer || !camera) return;
@@ -132,3 +143,6 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
 }
+
+/* Exportar función global */
+window.onWindowResize = onWindowResize;
