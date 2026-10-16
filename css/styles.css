@@ -7,19 +7,39 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Sombra de hora */
+/* Animación de flotado suave para el smartwatch */
+@keyframes floatWatch {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+.watch-container-animate {
+    animation: floatWatch 5s ease-in-out infinite;
+}
+
+/* Sombra de hora con brillo dinámico */
 .time-display-box {
-    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9), 0 0 2px rgba(0, 0, 0, 0.15);
+    text-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
 }
 
 /* Transición del marco */
 .watch-frame {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 30px rgba(6, 182, 212, 0.1);
 }
 
-/* Asegurar recorte de pantalla */
+/* Asegurar recorte de pantalla y reflejo de cristal */
 .watch-screen {
     overflow: hidden !important;
+}
+
+.watch-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    z-index: 15;
 }
 
 /* Formato circular */
@@ -71,13 +91,14 @@
     padding: 0.35rem 1rem;
     border-radius: 12px 12px 28px 28px;
     clip-path: ellipse(95% 100% at 50% 0%);
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.25);
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
 }
 
 .curved-btn:hover {
     transform: translateY(1px) scale(0.99);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
 }
 
 .btn-state-loaded .curved-btn {
@@ -88,10 +109,20 @@
     background-color: rgba(6, 182, 212, 0.92);
 }
 
-/* Botones de zoom */
+/* Botones de zoom con visibilidad en Hover */
+.scale-controls-container {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.watch-screen:hover .scale-controls-container {
+    opacity: 1;
+}
+
 .scale-btn {
     cursor: pointer;
     user-select: none;
+    backdrop-filter: blur(8px);
 }
 
 /* Contenedor canvas */
@@ -106,13 +137,13 @@
 
 /* ESTILOS MODO OSCURO */
 body.dark-theme {
-    background-color: #0f172a;
+    background-color: #0b0f19;
     color: #f8fafc;
 }
 
 body.dark-theme header,
 body.dark-theme .control-bar-box {
-    background-color: rgba(30, 41, 59, 0.85);
+    background-color: rgba(15, 23, 42, 0.85);
     border-color: rgba(51, 65, 85, 0.8);
     color: #f1f5f9;
 }
@@ -120,11 +151,16 @@ body.dark-theme .control-bar-box {
 body.dark-theme .watch-frame {
     background: linear-gradient(135deg, #1e293b, #0f172a, #334155);
     border-color: rgba(51, 65, 85, 0.9);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(6, 182, 212, 0.15);
 }
 
 body.dark-theme .watch-screen {
-    background-color: #020617;
+    background-color: #030712;
     border-color: rgba(30, 41, 59, 0.9);
+}
+
+body.dark-theme .watch-screen::after {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%);
 }
 
 body.dark-theme .watch-strap-top,
@@ -140,7 +176,7 @@ body.dark-theme #watch-side-btn {
 }
 
 body.dark-theme .glass-card {
-    background-color: rgba(15, 23, 42, 0.75);
+    background-color: rgba(15, 23, 42, 0.8);
     border-color: rgba(51, 65, 85, 0.6);
     color: #e2e8f0;
 }
@@ -154,7 +190,7 @@ body.dark-theme #watch-time {
 }
 
 body.dark-theme .time-display-box {
-    background-color: rgba(15, 23, 42, 0.8);
+    background-color: rgba(15, 23, 42, 0.85);
     border-color: rgba(51, 65, 85, 0.7);
-    text-shadow: 0 2px 10px rgba(6, 182, 212, 0.4);
+    text-shadow: 0 2px 12px rgba(6, 182, 212, 0.5);
 }
