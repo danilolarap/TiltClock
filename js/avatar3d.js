@@ -1,25 +1,28 @@
-/* Módulo renderizado 3D con soporte para pulsación continua de zoom (+/-) */
+/* Módulo renderizado 3D con avatares ampliados */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
 
-/* Controladores para pulsación continua (Hold zoom) */
 let zoomInterval = null;
 let zoomTimeout = null;
 
-/* Variables para gestos táctiles y ratón */
 let isDragging = false;
 let previousTouchPosition = { x: 0, y: 0 };
 let initialPinchDistance = null;
 let initialScaleOnPinch = 1.0;
 
+/* Mapeo de rutas locales */
 const PRESET_MODELS = {
     fox: [
         "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
         "assets/models/fox.glb"
-    ]
+    ],
+    pajaro: ["assets/models/pajaro.glb"],
+    mapache: ["assets/models/mapache.glb"],
+    moneda: ["assets/models/moneda.glb"],
+    riot: ["assets/models/riot.glb"]
 };
 
 function initAvatar3D() {
@@ -46,7 +49,6 @@ function initAvatar3D() {
 
     container.appendChild(renderer.domElement);
 
-    /* Luces */
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.0);
     scene.add(hemiLight);
 
@@ -64,7 +66,6 @@ function initAvatar3D() {
     pointLight.position.set(-2, 0, 2);
     scene.add(pointLight);
 
-    /* Plano de sombra */
     const planeGeo = new THREE.PlaneGeometry(5, 5);
     const planeMat = new THREE.ShadowMaterial({ opacity: 0.25 });
     shadowPlane = new THREE.Mesh(planeGeo, planeMat);
@@ -80,9 +81,7 @@ function initAvatar3D() {
     animate();
 }
 
-/* Configuración de eventos táctiles y ratón */
 function setupTouchAndMouseControls(container) {
-    /* Eventos táctiles */
     container.addEventListener("touchstart", (e) => {
         if (e.touches.length === 1) {
             isDragging = true;
@@ -116,7 +115,6 @@ function setupTouchAndMouseControls(container) {
         initialPinchDistance = null;
     });
 
-    /* Eventos de arrastre con el ratón */
     container.addEventListener("mousedown", (e) => {
         isDragging = true;
         previousTouchPosition = { x: e.clientX, y: e.clientY };
@@ -136,14 +134,12 @@ function setupTouchAndMouseControls(container) {
     });
 }
 
-/* Calcular distancia entre dos puntos táctiles */
 function getTouchDistance(touches) {
     const dx = touches[0].clientX - touches[1].clientX;
     const dy = touches[0].clientY - touches[1].clientY;
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-/* Aplicar rotación manual acumulada */
 function rotateAvatarManual(deltaX, deltaY) {
     const target = avatarMesh || orbitalRingsGroup;
     if (target) {
@@ -200,7 +196,10 @@ window.loadPresetAvatar = function(type) {
     const loader = new THREE.GLTFLoader();
 
     function tryLoadSource(index) {
-        if (index >= sources.length) return;
+        if (index >= sources.length) {
+            console.warn("No se pudo cargar el modelo preset desde la ruta local.");
+            return;
+        }
 
         loader.load(
             sources[index],
@@ -316,7 +315,6 @@ window.toggleAvatarAnimation = function() {
     }
 };
 
-/* Ajustar escala manual de forma inmediata */
 window.zoomAvatar = function(delta) {
     if (!avatarMesh && !orbitalRingsGroup) return;
 
@@ -326,15 +324,10 @@ window.zoomAvatar = function(delta) {
     applyAvatarScale();
 };
 
-/* Iniciar pulsación continua para zoom manual */
 window.startZoomHold = function(delta) {
-    /* Primer incremento por clic único */
     window.zoomAvatar(delta);
-
-    /* Cancelar pulsaciones anteriores */
     window.stopZoomHold();
 
-    /* Iniciar repetición tras 250ms de pulsación continua */
     zoomTimeout = setTimeout(() => {
         zoomInterval = setInterval(() => {
             window.zoomAvatar(delta * 0.3);
@@ -342,7 +335,6 @@ window.startZoomHold = function(delta) {
     }, 250);
 };
 
-/* Detener pulsación continua */
 window.stopZoomHold = function() {
     if (zoomTimeout) {
         clearTimeout(zoomTimeout);
@@ -372,7 +364,6 @@ function animate() {
         mixer.update(delta);
     }
 
-    /* Giroscopio como suavizado ambiental si no se está arrastrando */
     if (window.gyroData && !isDragging) {
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
         const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
