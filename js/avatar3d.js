@@ -1,19 +1,19 @@
-/* Módulo renderizado 3D con presets estables */
+/* Módulo renderizado 3D con presets corregidos */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
 
-/* Presets locales con fallback a CDNs con headers CORS completos */
+/* Fuentes con modelos 3D estables */
 const PRESET_MODELS = {
     astronaut: [
-        "assets/models/astronaut.glb",
-        "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Astronaut/glTF-Binary/Astronaut.glb"
+        "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Astronaut/glTF-Binary/Astronaut.glb",
+        "assets/models/astronaut.glb"
     ],
-    robot: [
-        "assets/models/fox.glb",
-        "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb"
+    fox: [
+        "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Fox/glTF-Binary/Fox.glb",
+        "assets/models/fox.glb"
     ]
 };
 
@@ -76,7 +76,7 @@ function createHoloOrbitals() {
     scene.add(orbitalRingsGroup);
 }
 
-/* Cargar preset con fallback automático */
+/* Cargar preset */
 window.loadPresetAvatar = function(type) {
     if (type === 'holo') {
         createHoloOrbitals();
@@ -90,7 +90,7 @@ window.loadPresetAvatar = function(type) {
 
     function tryLoadSource(index) {
         if (index >= sources.length) {
-            console.error("No se pudo cargar el modelo preset desde ninguna de las fuentes proporcionadas.");
+            console.error("No se pudo cargar el modelo desde ninguna fuente.");
             return;
         }
 
@@ -100,8 +100,7 @@ window.loadPresetAvatar = function(type) {
                 setupLoadedGLTF(gltf);
             },
             undefined,
-            (error) => {
-                console.warn(`Falló la carga desde ${sources[index]}. Intentando fuente alternativa...`, error);
+            () => {
                 tryLoadSource(index + 1);
             }
         );
