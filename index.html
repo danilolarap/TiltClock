@@ -73,6 +73,16 @@
                 <!-- Lienzo 3D -->
                 <div id="avatar-canvas-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
 
+                <!-- Botones Flotantes Ajuste Escala (+) (-) -->
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2">
+                    <button onclick="window.zoomAvatar(0.1)" title="Aumentar tamaño" class="scale-btn w-7 h-7 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-700 shadow-md text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <button onclick="window.zoomAvatar(-0.1)" title="Reducir tamaño" class="scale-btn w-7 h-7 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-700 shadow-md text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                </div>
+
                 <!-- Modulo superior -->
                 <div class="z-20 flex flex-col items-center gap-0.5 mt-2 pointer-events-none">
                     <div class="glass-card flex items-center gap-2 text-[10px] text-slate-600 font-bold bg-white/80 px-3 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean transition-colors duration-300">

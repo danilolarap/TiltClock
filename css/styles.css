@@ -88,6 +88,12 @@
     background-color: rgba(6, 182, 212, 0.92);
 }
 
+/* Botones de zoom */
+.scale-btn {
+    cursor: pointer;
+    user-select: none;
+}
+
 /* Contenedor canvas */
 #avatar-canvas-container {
     pointer-events: auto;

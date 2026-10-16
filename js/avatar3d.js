@@ -1,6 +1,7 @@
 /* Módulo renderizado 3D */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 let baseTargetScale = 1.0;
+let userScaleFactor = 1.0;
 
 /* Inicializar escena */
 function initAvatar3D() {
@@ -75,27 +76,27 @@ window.loadGLBModel = function(file) {
                 scene.remove(avatarMesh);
             }
 
-            avatarMesh = gltf.scene;
+            const rawMesh = gltf.scene;
 
-            /* Centrar modelo respetando geometría original */
-            const box = new THREE.Box3().setFromObject(avatarMesh);
+            /* Centrar modelo */
+            const box = new THREE.Box3().setFromObject(rawMesh);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
 
-            avatarMesh.position.x = -center.x;
-            avatarMesh.position.y = -center.y - 0.02;
-            avatarMesh.position.z = -center.z;
+            rawMesh.position.x = -center.x;
+            rawMesh.position.y = -center.y - 0.02;
+            rawMesh.position.z = -center.z;
 
-            /* Escala absoluta fija de 2.8m */
+            /* Escala inicial base */
             const maxDim = Math.max(size.x, size.y, size.z);
             baseTargetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
+            userScaleFactor = 1.0;
 
-            /* Envolver en contenedor neutro */
-            const wrapperGroup = new THREE.Group();
-            wrapperGroup.add(avatarMesh);
-            wrapperGroup.scale.set(baseTargetScale, baseTargetScale, baseTargetScale);
+            /* Envolver en grupo */
+            avatarMesh = new THREE.Group();
+            avatarMesh.add(rawMesh);
 
-            avatarMesh = wrapperGroup;
+            applyAvatarScale();
             scene.add(avatarMesh);
 
             /* Actualizar interfaz */
@@ -113,6 +114,26 @@ window.loadGLBModel = function(file) {
         });
     };
 };
+
+/* Ajustar escala manual */
+window.zoomAvatar = function(delta) {
+    if (!avatarMesh && !orbitalRingsGroup) return;
+
+    userScaleFactor = Math.max(0.3, Math.min(3.0, userScaleFactor + delta));
+
+    if (avatarMesh) {
+        applyAvatarScale();
+    } else if (orbitalRingsGroup) {
+        orbitalRingsGroup.scale.set(userScaleFactor, userScaleFactor, userScaleFactor);
+    }
+};
+
+/* Aplicar escala total */
+function applyAvatarScale() {
+    if (!avatarMesh) return;
+    const finalScale = baseTargetScale * userScaleFactor;
+    avatarMesh.scale.set(finalScale, finalScale, finalScale);
+}
 
 /* Bucle animación */
 function animate() {
