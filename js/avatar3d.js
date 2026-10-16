@@ -1,9 +1,9 @@
-/* Módulo renderizado 3D */
+/* Módulo renderizado 3D con persistencia de zoom */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
-let userScaleFactor = 1.0;
+let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
 
 /* Inicializar escena */
 function initAvatar3D() {
@@ -58,6 +58,7 @@ function createHoloOrbitals() {
     const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.25, 2), coreMat);
     orbitalRingsGroup.add(core);
 
+    orbitalRingsGroup.scale.set(userScaleFactor, userScaleFactor, userScaleFactor);
     scene.add(orbitalRingsGroup);
 }
 
@@ -97,7 +98,6 @@ window.loadGLBModel = function(file) {
             /* Escala inicial base */
             const maxDim = Math.max(size.x, size.y, size.z);
             baseTargetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
-            userScaleFactor = 1.0;
 
             /* Envolver en grupo */
             avatarMesh = new THREE.Group();
@@ -156,6 +156,7 @@ window.zoomAvatar = function(delta) {
     if (!avatarMesh && !orbitalRingsGroup) return;
 
     userScaleFactor = Math.max(0.3, Math.min(3.0, userScaleFactor + delta));
+    localStorage.setItem('tiltclock_scale', userScaleFactor.toFixed(2));
 
     if (avatarMesh) {
         applyAvatarScale();

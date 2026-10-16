@@ -1,4 +1,4 @@
-/* Tema e idioma */
+/* Tema e idioma con persistencia */
 (function () {
     /* Textos por idioma */
     const TRANSLATIONS = {
@@ -26,8 +26,9 @@
         }
     };
 
-    let currentTheme = 'light';
-    let currentLang = 'es';
+    /* Cargar preferencias guardadas */
+    let currentTheme = localStorage.getItem('tiltclock_theme') || 'light';
+    let currentLang = localStorage.getItem('tiltclock_lang') || 'es';
 
     /* Inicializar controles */
     function initThemeAndLang() {
@@ -41,15 +42,25 @@
         if (langBtn) {
             langBtn.addEventListener('click', toggleLang);
         }
+
+        /* Aplicar valores guardados */
+        applyTheme(currentTheme);
+        updateTranslations();
     }
 
     /* Alternar tema */
     function toggleTheme() {
         currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('tiltclock_theme', currentTheme);
+        applyTheme(currentTheme);
+    }
+
+    /* Aplicar estado visual del tema */
+    function applyTheme(theme) {
         const body = document.body;
         const themeIcon = document.getElementById('theme-icon');
 
-        if (currentTheme === 'dark') {
+        if (theme === 'dark') {
             body.classList.add('dark-theme');
             if (themeIcon) themeIcon.className = "fa-solid fa-sun text-amber-400";
         } else {
@@ -61,6 +72,8 @@
     /* Alternar idioma */
     function toggleLang() {
         currentLang = currentLang === 'es' ? 'en' : 'es';
+        localStorage.setItem('tiltclock_lang', currentLang);
+        
         const langText = document.getElementById('lang-text');
         if (langText) langText.innerText = currentLang.toUpperCase();
 
@@ -82,7 +95,9 @@
         const btnBand = document.getElementById('btn-label-band');
         const stepsLabel = document.getElementById('steps-label');
         const uploadBtnText = document.getElementById('upload-btn-text');
+        const langText = document.getElementById('lang-text');
 
+        if (langText) langText.innerText = currentLang.toUpperCase();
         if (modelLabel) modelLabel.innerText = t.modelLabel;
         if (btnCircular) btnCircular.innerText = t.circular;
         if (btnSquare) btnSquare.innerText = t.square;

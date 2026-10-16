@@ -1,4 +1,4 @@
-/* Selector de dispositivos */
+/* Selector de dispositivos con persistencia */
 (function () {
     /* Tipos permitidos */
     const DEVICES = {
@@ -7,7 +7,8 @@
         BAND: 'band'
     };
 
-    let currentDevice = DEVICES.CIRCULAR;
+    /* Cargar dispositivo guardado */
+    let currentDevice = localStorage.getItem('tiltclock_device') || DEVICES.CIRCULAR;
 
     /* Inicializar eventos */
     function initDeviceSelector() {
@@ -22,11 +23,17 @@
                 }
             });
         });
+
+        /* Aplicar dispositivo inicial cargado de localStorage */
+        if (currentDevice !== DEVICES.CIRCULAR) {
+            setDevice(currentDevice);
+        }
     }
 
     /* Cambiar dispositivo */
     function setDevice(deviceType) {
         currentDevice = deviceType;
+        localStorage.setItem('tiltclock_device', deviceType);
 
         const watchFrame = document.getElementById('watch-frame');
         const strapTop = document.getElementById('watch-strap-top');
