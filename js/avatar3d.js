@@ -1,9 +1,15 @@
-/* Módulo renderizado 3D con plano receptor de sombras visible */
+/* Módulo renderizado 3D con sombras y controles táctiles móviles */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
+
+/* Variables para gestos táctiles y ratón */
+let isDragging = false;
+let previousTouchPosition = { x: 0, y: 0 };
+let initialPinchDistance = null;
+let initialScaleOnPinch = 1.0;
 
 const PRESET_MODELS = {
     fox: [
@@ -29,7 +35,6 @@ function initAvatar3D() {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     
-    /* Sombras activas */
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -37,11 +42,10 @@ function initAvatar3D() {
 
     container.appendChild(renderer.domElement);
 
-    /* Luz de Techo */
+    /* Luces */
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.0);
     scene.add(hemiLight);
 
-    /* Luz Principal Proyectora de Sombras */
     const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
     dirLight.position.set(2, 4, 3);
     dirLight.castShadow = true;
@@ -52,12 +56,11 @@ function initAvatar3D() {
     dirLight.shadow.bias = -0.0005;
     scene.add(dirLight);
 
-    /* Luz Cyan de Acento */
     const pointLight = new THREE.PointLight(0x06b6d4, 2.5, 6);
     pointLight.position.set(-2, 0, 2);
     scene.add(pointLight);
 
-    /* Plano receptor de sombra en el suelo */
+    /* Plano de sombra */
     const planeGeo = new THREE.PlaneGeometry(5, 5);
     const planeMat = new THREE.ShadowMaterial({ opacity: 0.25 });
     shadowPlane = new THREE.Mesh(planeGeo, planeMat);
@@ -67,9 +70,82 @@ function initAvatar3D() {
     scene.add(shadowPlane);
 
     createHoloOrbitals();
+    setupTouchAndMouseControls(container);
 
     window.addEventListener("resize", onWindowResize);
     animate();
+}
+
+/* Configuración de eventos táctiles y ratón */
+function setupTouchAndMouseControls(container) {
+    /* Eventos táctiles */
+    container.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+            isDragging = true;
+            previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        } else if (e.touches.length === 2) {
+            isDragging = false;
+            initialPinchDistance = getTouchDistance(e.touches);
+            initialScaleOnPinch = userScaleFactor;
+        }
+    }, { passive: true });
+
+    container.addEventListener("touchmove", (e) => {
+        if (isDragging && e.touches.length === 1) {
+            const deltaX = e.touches[0].clientX - previousTouchPosition.x;
+            const deltaY = e.touches[0].clientY - previousTouchPosition.y;
+
+            rotateAvatarManual(deltaX * 0.01, deltaY * 0.01);
+            previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        } else if (e.touches.length === 2 && initialPinchDistance) {
+            const currentDistance = getTouchDistance(e.touches);
+            const scaleFactor = currentDistance / initialPinchDistance;
+            
+            userScaleFactor = Math.max(0.3, Math.min(3.0, initialScaleOnPinch * scaleFactor));
+            localStorage.setItem('tiltclock_scale', userScaleFactor.toFixed(2));
+            applyAvatarScale();
+        }
+    }, { passive: true });
+
+    container.addEventListener("touchend", () => {
+        isDragging = false;
+        initialPinchDistance = null;
+    });
+
+    /* Eventos de arrastre con el ratón */
+    container.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        previousTouchPosition = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - previousTouchPosition.x;
+        const deltaY = e.clientY - previousTouchPosition.y;
+
+        rotateAvatarManual(deltaX * 0.008, deltaY * 0.008);
+        previousTouchPosition = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener("mouseup", () => {
+        isDragging = false;
+    });
+}
+
+/* Calcular distancia entre dos puntos táctiles */
+function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+/* Aplicar rotación manual acumulada */
+function rotateAvatarManual(deltaX, deltaY) {
+    const target = avatarMesh || orbitalRingsGroup;
+    if (target) {
+        target.rotation.y += deltaX;
+        target.rotation.x += deltaY;
+    }
 }
 
 function createHoloOrbitals() {
@@ -77,7 +153,6 @@ function createHoloOrbitals() {
 
     orbitalRingsGroup = new THREE.Group();
 
-    /* Anillos metálicos reflectantes PBR */
     const ringMat = new THREE.MeshStandardMaterial({ 
         color: 0x06b6d4, 
         metalness: 0.9, 
@@ -95,7 +170,6 @@ function createHoloOrbitals() {
     ring2.castShadow = true;
     orbitalRingsGroup.add(ring2);
 
-    /* Núcleo metálico con sombra activa */
     const coreMat = new THREE.MeshStandardMaterial({ 
         color: 0x0891b2, 
         roughness: 0.15, 
@@ -244,17 +318,16 @@ window.zoomAvatar = function(delta) {
     userScaleFactor = Math.max(0.3, Math.min(3.0, userScaleFactor + delta));
     localStorage.setItem('tiltclock_scale', userScaleFactor.toFixed(2));
 
-    if (avatarMesh) {
-        applyAvatarScale();
-    } else if (orbitalRingsGroup) {
-        orbitalRingsGroup.scale.set(userScaleFactor, userScaleFactor, userScaleFactor);
-    }
+    applyAvatarScale();
 };
 
 function applyAvatarScale() {
-    if (!avatarMesh) return;
-    const finalScale = baseTargetScale * userScaleFactor;
-    avatarMesh.scale.set(finalScale, finalScale, finalScale);
+    if (avatarMesh) {
+        const finalScale = baseTargetScale * userScaleFactor;
+        avatarMesh.scale.set(finalScale, finalScale, finalScale);
+    } else if (orbitalRingsGroup) {
+        orbitalRingsGroup.scale.set(userScaleFactor, userScaleFactor, userScaleFactor);
+    }
 }
 
 function animate() {
@@ -266,18 +339,15 @@ function animate() {
         mixer.update(delta);
     }
 
-    if (window.gyroData) {
+    /* Giroscopio como suavizado ambiental si no se esta arrastrando */
+    if (window.gyroData && !isDragging) {
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
         const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
 
-        if (orbitalRingsGroup) {
-            orbitalRingsGroup.rotation.x += (targetRotX - orbitalRingsGroup.rotation.x) * 0.1;
-            orbitalRingsGroup.rotation.y += (targetRotY - orbitalRingsGroup.rotation.y) * 0.1;
-        }
-
-        if (avatarMesh) {
-            avatarMesh.rotation.x += (targetRotX - avatarMesh.rotation.x) * 0.1;
-            avatarMesh.rotation.y += (targetRotY - avatarMesh.rotation.y) * 0.1;
+        const target = avatarMesh || orbitalRingsGroup;
+        if (target) {
+            target.rotation.x += (targetRotX - target.rotation.x) * 0.05;
+            target.rotation.y += (targetRotY - target.rotation.y) * 0.05;
         }
     }
 
