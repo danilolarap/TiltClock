@@ -1,9 +1,11 @@
-/* Tema e idioma con persistencia */
+/* Tema e idioma con traducción de controles de pasos */
 (function () {
     /* Textos por idioma */
     const TRANSLATIONS = {
         es: {
             modelLabel: "Modelo:",
+            avatarLabel: "Avatar:",
+            stepsControlLabel: "Pasos:",
             circular: "Circular",
             square: "Apple Watch",
             band: "Xiaomi Band",
@@ -15,6 +17,8 @@
         },
         en: {
             modelLabel: "Model:",
+            avatarLabel: "Avatar:",
+            stepsControlLabel: "Steps:",
             circular: "Circular",
             square: "Apple Watch",
             band: "Xiaomi Band",
@@ -43,7 +47,6 @@
             langBtn.addEventListener('click', toggleLang);
         }
 
-        /* Aplicar valores guardados */
         applyTheme(currentTheme);
         updateTranslations();
     }
@@ -73,13 +76,12 @@
     function toggleLang() {
         currentLang = currentLang === 'es' ? 'en' : 'es';
         localStorage.setItem('tiltclock_lang', currentLang);
-        
+
         const langText = document.getElementById('lang-text');
         if (langText) langText.innerText = currentLang.toUpperCase();
 
         updateTranslations();
-        
-        /* Forzar fecha */
+
         if (typeof window.updateWatchTime === 'function') {
             window.updateWatchTime();
         }
@@ -90,6 +92,8 @@
         const t = TRANSLATIONS[currentLang];
 
         const modelLabel = document.getElementById('model-label');
+        const avatarLabel = document.getElementById('avatar-label');
+        const stepsControlLabel = document.getElementById('steps-control-label');
         const btnCircular = document.getElementById('btn-label-circular');
         const btnSquare = document.getElementById('btn-label-square');
         const btnBand = document.getElementById('btn-label-band');
@@ -99,6 +103,8 @@
 
         if (langText) langText.innerText = currentLang.toUpperCase();
         if (modelLabel) modelLabel.innerText = t.modelLabel;
+        if (avatarLabel) avatarLabel.innerText = t.avatarLabel;
+        if (stepsControlLabel) stepsControlLabel.innerText = t.stepsControlLabel;
         if (btnCircular) btnCircular.innerText = t.circular;
         if (btnSquare) btnSquare.innerText = t.square;
         if (btnBand) btnBand.innerText = t.band;
