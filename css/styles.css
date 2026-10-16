@@ -17,6 +17,11 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Asegurar recorte de pantalla */
+.watch-screen {
+    overflow: hidden !important;
+}
+
 /* Formato circular */
 .watch-frame.device-circular {
     width: 340px;
@@ -93,7 +98,7 @@
     outline: none;
 }
 
-/* --- ESTILOS MODO OSCURO --- */
+/* ESTILOS MODO OSCURO */
 body.dark-theme {
     background-color: #0f172a;
     color: #f8fafc;

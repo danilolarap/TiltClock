@@ -16,6 +16,7 @@ function initAvatar3D() {
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
     /* Iluminación básica */
@@ -75,23 +76,18 @@ window.loadGLBModel = function(file) {
 
             avatarMesh = gltf.scene;
 
-            /* Calcular dimensiones */
+            /* Centrar modelo */
             const box = new THREE.Box3().setFromObject(avatarMesh);
-            const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
 
             avatarMesh.position.x += (avatarMesh.position.x - center.x);
             avatarMesh.position.y += (avatarMesh.position.y - center.y);
             avatarMesh.position.z += (avatarMesh.position.z - center.z);
 
-            /* Ajustar escala */
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const targetScale = maxDim > 0 ? (2.8 / maxDim) : 2.8;
-
-            avatarMesh.scale.set(targetScale, targetScale, targetScale);
-            avatarMesh.position.y = -0.02;
-
             scene.add(avatarMesh);
+
+            /* Ajustar dimensiones */
+            fitModelToScreen();
 
             /* Actualizar interfaz */
             const btnWrapper = document.getElementById("upload-btn-wrapper");
@@ -108,6 +104,22 @@ window.loadGLBModel = function(file) {
         });
     };
 };
+
+/* Ajustar escala dinámicamente */
+function fitModelToScreen() {
+    if (!avatarMesh) return;
+
+    const box = new THREE.Box3().setFromObject(avatarMesh);
+    const size = box.getSize(new THREE.Vector3());
+
+    /* Escala base del modelo */
+    const maxDim = Math.max(size.x, size.y, size.z);
+    if (maxDim > 0) {
+        const baseScale = 2.2 / maxDim;
+        avatarMesh.scale.set(baseScale, baseScale, baseScale);
+    }
+    avatarMesh.position.y = -0.05;
+}
 
 /* Bucle animación */
 function animate() {
@@ -137,11 +149,29 @@ function animate() {
 function onWindowResize() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container || !renderer || !camera) return;
+
     const width = container.clientWidth;
     const height = container.clientHeight;
-    camera.aspect = width / height;
+    if (width === 0 || height === 0) return;
+
+    const aspect = width / height;
+    camera.aspect = aspect;
+
+    /* Adaptar FOV según el aspecto para evitar recortes */
+    if (aspect < 1) {
+        /* Pantalla alta/estrecha (Xiaomi Band) */
+        camera.fov = 50 / aspect;
+    } else {
+        /* Pantalla cuadrada/circular */
+        camera.fov = 50;
+    }
+
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
+
+    if (avatarMesh) {
+        fitModelToScreen();
+    }
 }
 
 /* Exportar función global */
