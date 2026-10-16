@@ -109,7 +109,7 @@
     background-color: rgba(6, 182, 212, 0.92);
 }
 
-/* Botones de zoom con visibilidad en Hover */
+/* Botones de zoom y animación con visibilidad en Hover */
 .scale-controls-container {
     opacity: 0;
     transition: opacity 0.3s ease;

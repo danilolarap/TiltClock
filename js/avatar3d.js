@@ -1,5 +1,7 @@
 /* Módulo renderizado 3D */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
+let mixer, clock, activeAction;
+let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = 1.0;
 
@@ -11,6 +13,7 @@ function initAvatar3D() {
     const width = container.clientWidth || 340;
     const height = container.clientHeight || 340;
 
+    clock = new THREE.Clock();
     scene = new THREE.Scene();
 
     camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
@@ -67,7 +70,11 @@ window.loadGLBModel = function(file) {
         const loader = new THREE.GLTFLoader();
 
         loader.parse(contents, "", (gltf) => {
-            /* Limpiar modelo previo */
+            /* Limpiar modelo y animaciones previas */
+            if (mixer) {
+                mixer.stopAllAction();
+                mixer = null;
+            }
             if (orbitalRingsGroup) {
                 scene.remove(orbitalRingsGroup);
                 orbitalRingsGroup = null;
@@ -99,6 +106,19 @@ window.loadGLBModel = function(file) {
             applyAvatarScale();
             scene.add(avatarMesh);
 
+            /* Configurar animaciones integradas si existen */
+            const animBtn = document.getElementById("anim-toggle-btn");
+            if (gltf.animations && gltf.animations.length > 0) {
+                mixer = new THREE.AnimationMixer(rawMesh);
+                activeAction = mixer.clipAction(gltf.animations[0]);
+                activeAction.play();
+                isAnimationPlaying = true;
+
+                if (animBtn) animBtn.classList.remove("hidden");
+            } else {
+                if (animBtn) animBtn.classList.add("hidden");
+            }
+
             /* Actualizar interfaz */
             const btnWrapper = document.getElementById("upload-btn-wrapper");
             const btnText = document.getElementById("upload-btn-text");
@@ -113,6 +133,22 @@ window.loadGLBModel = function(file) {
             onWindowResize();
         });
     };
+};
+
+/* Alternar animación play/pause */
+window.toggleAvatarAnimation = function() {
+    if (!mixer || !activeAction) return;
+
+    const animIcon = document.getElementById("anim-icon");
+    if (isAnimationPlaying) {
+        activeAction.paused = true;
+        isAnimationPlaying = false;
+        if (animIcon) animIcon.className = "fa-solid fa-play";
+    } else {
+        activeAction.paused = false;
+        isAnimationPlaying = true;
+        if (animIcon) animIcon.className = "fa-solid fa-pause";
+    }
 };
 
 /* Ajustar escala manual */
@@ -138,6 +174,13 @@ function applyAvatarScale() {
 /* Bucle animación */
 function animate() {
     requestAnimationFrame(animate);
+
+    const delta = clock ? clock.getDelta() : 0.016;
+
+    /* Actualizar mezclador de animación */
+    if (mixer && isAnimationPlaying) {
+        mixer.update(delta);
+    }
 
     if (window.gyroData) {
         const targetRotX = (window.gyroData.beta * Math.PI) / 180;
