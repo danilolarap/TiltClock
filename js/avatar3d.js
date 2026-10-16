@@ -1,14 +1,14 @@
-/* Módulo renderizado 3D con avatares predefinidos */
+/* Módulo renderizado 3D con avatares predefinidos locales */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
 let baseTargetScale = 1.0;
 let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0;
 
-/* URLs de modelos predefinidos públicos */
+/* Rutas locales para evitar bloqueos CORS */
 const PRESET_MODELS = {
-    astronaut: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Astronaut/glTF-Binary/Astronaut.glb",
-    robot: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/Fox/glTF-Binary/Fox.glb"
+    astronaut: "assets/models/astronaut.glb",
+    robot: "assets/models/fox.glb"
 };
 
 /* Inicializar escena */
@@ -70,7 +70,7 @@ function createHoloOrbitals() {
     scene.add(orbitalRingsGroup);
 }
 
-/* Cargar preset por URL */
+/* Cargar preset */
 window.loadPresetAvatar = function(type) {
     if (type === 'holo') {
         createHoloOrbitals();
@@ -81,9 +81,16 @@ window.loadPresetAvatar = function(type) {
     if (!url) return;
 
     const loader = new THREE.GLTFLoader();
-    loader.load(url, (gltf) => {
-        setupLoadedGLTF(gltf);
-    });
+    loader.load(
+        url, 
+        (gltf) => {
+            setupLoadedGLTF(gltf);
+        },
+        undefined,
+        (error) => {
+            console.warn("No se pudo cargar el modelo preset local. Asegúrate de que el archivo existe en " + url, error);
+        }
+    );
 };
 
 /* Cargar modelo GLB local */
