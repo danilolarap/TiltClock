@@ -1,5 +1,5 @@
-/* Podómetro interactivo con control manual, acelerómetro móvil y anillo SVG */
-window.stepCount = 1259;
+/* Podómetro interactivo con control manual, acelerómetro móvil, persistencia y anillo SVG */
+window.stepCount = parseInt(localStorage.getItem('tiltclock_steps'), 10) || 1259;
 const GOAL_STEPS = 10000;
 let lastAccelY = 0;
 let lastStepTime = 0;
@@ -9,7 +9,7 @@ function initPedometer() {
     const stepInput = document.getElementById("step-input");
     const stepProgressRing = document.getElementById("step-progress-ring");
 
-    /* Actualizar UI y anillo SVG */
+    /* Actualizar UI, progreso del anillo SVG y guardar en localStorage */
     function updateStepUI() {
         if (watchSteps) {
             watchSteps.innerText = window.stepCount.toLocaleString();
@@ -28,9 +28,12 @@ function initPedometer() {
             stepProgressRing.style.strokeDasharray = `${circumference} ${circumference}`;
             stepProgressRing.style.strokeDashoffset = offset;
         }
+
+        /* Guardar conteo actual de pasos en el almacenamiento local */
+        localStorage.setItem('tiltclock_steps', window.stepCount);
     }
 
-    /* Modificar pasos con botones + / - */
+    /* Modificar pasos mediante botones + / - */
     window.addSteps = function (amount) {
         if (typeof window.requestGyroPermission === "function") {
             window.requestGyroPermission();
@@ -39,21 +42,21 @@ function initPedometer() {
         updateStepUI();
     };
 
-    /* Cambiar pasos directamente desde el input */
+    /* Ajustar pasos directamente desde el campo numérico */
     window.setStepsFromInput = function (value) {
         const parsed = parseInt(value, 10);
         window.stepCount = isNaN(parsed) ? 0 : Math.max(0, parsed);
         updateStepUI();
     };
 
-    /* Evento para input directo */
+    /* Escuchar cambios directos en el input */
     if (stepInput) {
         stepInput.addEventListener("input", (e) => {
             window.setStepsFromInput(e.target.value);
         });
     }
 
-    /* Detección física vía Acelerómetro Móvil */
+    /* Detección física vía Acelerómetro en dispositivos móviles y Smartwatches */
     if (window.DeviceMotionEvent) {
         window.addEventListener("devicemotion", (event) => {
             const accel = event.accelerationIncludingGravity || event.acceleration;
@@ -63,7 +66,7 @@ function initPedometer() {
             const deltaY = Math.abs(currentY - lastAccelY);
             const now = Date.now();
 
-            /* Umbral de detección de paso por sacudida/caminata */
+            /* Umbral para contar un paso por movimiento/caminata */
             if (deltaY > 2.2 && (now - lastStepTime) > 320) {
                 window.stepCount++;
                 lastStepTime = now;
@@ -73,7 +76,9 @@ function initPedometer() {
         }, true);
     }
 
-    /* Exponer para actualizaciones globales */
+    /* Exponer función de actualización de interfaz globalmente */
     window.updateStepUI = updateStepUI;
     updateStepUI();
 }
+
+document.addEventListener("DOMContentLoaded", initPedometer);
