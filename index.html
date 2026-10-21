@@ -133,12 +133,12 @@
                     </button>
                 </div>
 
-                <!-- Módulo Superior (Fecha y Pasos) -->
+                <!-- Módulo Superior (Fecha y Pasos con Accesibilidad de Lectura de Voz) -->
                 <div class="z-20 flex flex-col items-center gap-0.5 mt-2 pointer-events-none">
                     <div class="glass-card flex items-center gap-2 text-[10px] text-slate-600 font-bold bg-white/80 px-3 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean transition-colors duration-300">
                         <span><i class="fa-regular fa-calendar text-cyan-500 mr-1" aria-hidden="true"></i><span id="watch-date">LUN, 24 OCT</span></span>
                         <span>•</span>
-                        <div id="step-container" class="flex items-center gap-1">
+                        <div id="step-container" class="flex items-center gap-1" aria-live="polite" aria-atomic="true">
                             <i class="fa-solid fa-person-walking text-cyan-500" aria-hidden="true"></i>
                             <span id="watch-steps" class="font-bold text-slate-800">1,259</span>
                             <span id="steps-label" class="text-[9px] text-slate-500">PASOS</span>
