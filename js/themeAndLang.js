@@ -1,6 +1,6 @@
-/* Tema e idioma con traducción de controles de pasos */
+/* Módulo de Gestión de Tema e Idioma (ES/EN) con persistencia en localStorage */
 (function () {
-    /* Textos por idioma */
+    /* Diccionario de traducciones */
     const TRANSLATIONS = {
         es: {
             modelLabel: "Modelo:",
@@ -19,7 +19,7 @@
             modelLabel: "Model:",
             avatarLabel: "Avatar:",
             stepsControlLabel: "Steps:",
-            circular: "Circular",
+            circular: "Round",
             square: "Apple Watch",
             band: "Xiaomi Band",
             stepsLabel: "STEPS",
@@ -30,11 +30,11 @@
         }
     };
 
-    /* Cargar preferencias guardadas */
+    /* Cargar preferencias guardadas en localStorage */
     let currentTheme = localStorage.getItem('tiltclock_theme') || 'light';
     let currentLang = localStorage.getItem('tiltclock_lang') || 'es';
 
-    /* Inicializar controles */
+    /* Inicialización de eventos e interfaz */
     function initThemeAndLang() {
         const themeBtn = document.getElementById('theme-toggle-btn');
         const langBtn = document.getElementById('lang-toggle-btn');
@@ -51,14 +51,14 @@
         updateTranslations();
     }
 
-    /* Alternar tema */
+    /* Alternar entre modo claro y oscuro */
     function toggleTheme() {
         currentTheme = currentTheme === 'light' ? 'dark' : 'light';
         localStorage.setItem('tiltclock_theme', currentTheme);
         applyTheme(currentTheme);
     }
 
-    /* Aplicar estado visual del tema */
+    /* Aplicar clases y estilos del tema */
     function applyTheme(theme) {
         const body = document.body;
         const themeIcon = document.getElementById('theme-icon');
@@ -72,13 +72,10 @@
         }
     }
 
-    /* Alternar idioma */
+    /* Alternar entre español e inglés */
     function toggleLang() {
         currentLang = currentLang === 'es' ? 'en' : 'es';
         localStorage.setItem('tiltclock_lang', currentLang);
-
-        const langText = document.getElementById('lang-text');
-        if (langText) langText.innerText = currentLang.toUpperCase();
 
         updateTranslations();
 
@@ -87,7 +84,7 @@
         }
     }
 
-    /* Actualizar UI */
+    /* Actualizar todos los textos traducibles del DOM */
     function updateTranslations() {
         const t = TRANSLATIONS[currentLang];
 
@@ -116,18 +113,20 @@
         }
     }
 
-    /* Obtener idioma */
+    /* Funciones globales de consulta */
     function getCurrentLang() {
         return currentLang;
     }
 
-    /* Obtener traducciones */
     function getTranslations() {
         return TRANSLATIONS[currentLang];
     }
 
-    /* Exportar funciones */
+    /* Exponer API al ámbito global */
     window.initThemeAndLang = initThemeAndLang;
     window.getCurrentLang = getCurrentLang;
     window.getTranslations = getTranslations;
+
+    /* Auto-inicializar cuando el DOM esté listo */
+    document.addEventListener("DOMContentLoaded", initThemeAndLang);
 })();
