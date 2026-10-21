@@ -1,4 +1,4 @@
-/* Módulo renderizado 3D con compatibilidad para Smartwatch, persistencia de avatar y optimización de energía */
+/* Módulo renderizado 3D con compatibilidad para Smartwatch, persistencia de avatar y optimización de memoria GPU */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -359,16 +359,45 @@ function setupLoadedGLTF(gltf) {
     onWindowResize();
 }
 
+/* Liberación profunda de geometrías, materiales y texturas de la GPU */
+function disposeGroup(group) {
+    if (!group) return;
+    group.traverse((child) => {
+        if (child.isMesh) {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach((mat) => disposeMaterial(mat));
+                } else {
+                    disposeMaterial(child.material);
+                }
+            }
+        }
+    });
+}
+
+function disposeMaterial(mat) {
+    if (!mat) return;
+    Object.keys(mat).forEach((prop) => {
+        if (mat[prop] && typeof mat[prop].dispose === 'function') {
+            mat[prop].dispose();
+        }
+    });
+    mat.dispose();
+}
+
 function clearCurrentAvatar() {
     if (mixer) {
         mixer.stopAllAction();
         mixer = null;
     }
     if (orbitalRingsGroup) {
+        disposeGroup(orbitalRingsGroup);
         scene.remove(orbitalRingsGroup);
         orbitalRingsGroup = null;
     }
     if (avatarMesh) {
+        disposeGroup(avatarMesh);
         scene.remove(avatarMesh);
         avatarMesh = null;
     }
