@@ -1,4 +1,4 @@
-/* Módulo renderizado 3D con compatibilidad para Smartwatch (Hover, Arrastre Táctil y Giroscopio) */
+/* Módulo renderizado 3D con compatibilidad para Smartwatch y persistencia de avatar en localStorage */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -90,16 +90,23 @@ function initAvatar3D() {
     shadowPlane.receiveShadow = true;
     scene.add(shadowPlane);
 
-    createHoloOrbitals();
+    /* Restaurar avatar guardado previamente o cargar átomo por defecto */
+    const savedAvatar = localStorage.getItem('tiltclock_avatar') || 'holo';
+    if (savedAvatar === 'holo') {
+        createHoloOrbitals();
+    } else if (PRESET_MODELS[savedAvatar]) {
+        window.loadPresetAvatar(savedAvatar);
+    } else {
+        createHoloOrbitals();
+    }
+
     setupTouchAndMouseControls(container);
 
     window.addEventListener("resize", onWindowResize);
     animate();
 }
 
-/* Eventos adaptados para Smartwatch y PC */
 function setupTouchAndMouseControls(container) {
-    /* 1. SEGUIMIENTO DE PUNTERO (Hover en PC) */
     window.addEventListener("mousemove", (e) => {
         if (isDragging) {
             const deltaX = e.clientX - previousTouchPosition.x;
@@ -127,7 +134,6 @@ function setupTouchAndMouseControls(container) {
         isDragging = false;
     });
 
-    /* 2. ARRASTRE TÁCTIL DEDICADO A SMARTWATCH / PANTALLAS TÁCTILES */
     const canvasElement = container.querySelector('canvas') || container;
 
     canvasElement.addEventListener("touchstart", (e) => {
@@ -152,7 +158,6 @@ function setupTouchAndMouseControls(container) {
             const deltaX = currentX - previousTouchPosition.x;
             const deltaY = currentY - previousTouchPosition.y;
 
-            /* Sensibilidad adaptada a pantallas pequeñas de smartwatch */
             mouseTargetY += deltaX * 0.015;
             mouseTargetX += deltaY * 0.015;
 
@@ -186,6 +191,7 @@ function getTouchDistance(touches) {
 
 function createHoloOrbitals() {
     clearCurrentAvatar();
+    localStorage.setItem('tiltclock_avatar', 'holo');
 
     orbitalRingsGroup = new THREE.Group();
 
@@ -229,6 +235,7 @@ window.loadPresetAvatar = function(type) {
     const sources = PRESET_MODELS[type];
     if (!sources || !sources.length) return;
 
+    localStorage.setItem('tiltclock_avatar', type);
     const loader = createGLTFLoader();
 
     function tryLoadSource(index) {
@@ -404,7 +411,6 @@ function animate() {
     const target = avatarMesh || orbitalRingsGroup;
 
     if (target) {
-        /* Si el usuario está tocando/arrastrando con el dedo, priorizar la entrada táctil sobre el giroscopio */
         if (window.gyroData && window.gyroData.beta !== null && !isDragging) {
             const gyroRotX = (window.gyroData.beta * Math.PI) / 180;
             const gyroRotY = (window.gyroData.gamma * Math.PI) / 180;
@@ -412,7 +418,6 @@ function animate() {
             target.rotation.x += (gyroRotX - target.rotation.x) * 0.08;
             target.rotation.y += (gyroRotY - target.rotation.y) * 0.08;
         } else {
-            /* Modo Arrastre Táctil (Smartwatch/Móvil) o Puntero (PC) */
             target.rotation.x += (mouseTargetX - target.rotation.x) * 0.08;
             target.rotation.y += (mouseTargetY - target.rotation.y) * 0.08;
         }
