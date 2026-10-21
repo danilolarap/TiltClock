@@ -98,12 +98,11 @@ function initAvatar3D() {
     animate();
 }
 
-/* Sistema Híbrido: Hover + Click & Drag + Gestos en Relojes/Smartphones */
+/* Sistema Híbrido: Hover + Click & Drag + Arrastre Táctil en Móviles */
 function setupTouchAndMouseControls(container) {
-    /* 1. SEGUIMIENTO LIBRE DEL MOUSE (Hover en PC) */
+    /* 1. SEGUIMIENTO Y ARRASTRE CON RATÓN (PC) */
     window.addEventListener("mousemove", (e) => {
         if (isDragging) {
-            /* 2. ARRASTRE SOSTENIDO (Click & Drag en PC) */
             const deltaX = e.clientX - previousTouchPosition.x;
             const deltaY = e.clientY - previousTouchPosition.y;
 
@@ -112,7 +111,6 @@ function setupTouchAndMouseControls(container) {
 
             previousTouchPosition = { x: e.clientX, y: e.clientY };
         } else {
-            /* Modo Hover (Solo mover sin presionar) */
             const windowHalfX = window.innerWidth / 2;
             const windowHalfY = window.innerHeight / 2;
 
@@ -130,7 +128,7 @@ function setupTouchAndMouseControls(container) {
         isDragging = false;
     });
 
-    /* 3. INTERACCIÓN TÁCTIL (Smartwatches y Smartphones) */
+    /* 2. INTERACCIÓN TÁCTIL MÓVIL (Con prevención de desplazamiento nativo) */
     container.addEventListener("touchstart", (e) => {
         if (e.touches.length === 1) {
             isDragging = true;
@@ -140,15 +138,18 @@ function setupTouchAndMouseControls(container) {
             initialPinchDistance = getTouchDistance(e.touches);
             initialScaleOnPinch = userScaleFactor;
         }
-    }, { passive: true });
+    }, { passive: false });
 
     container.addEventListener("touchmove", (e) => {
+        /* Prevenir que el navegador haga scroll al arrastrar sobre el avatar */
+        if (e.cancelable) e.preventDefault();
+
         if (isDragging && e.touches.length === 1) {
             const deltaX = e.touches[0].clientX - previousTouchPosition.x;
             const deltaY = e.touches[0].clientY - previousTouchPosition.y;
 
-            mouseTargetY += deltaX * 0.01;
-            mouseTargetX += deltaY * 0.01;
+            mouseTargetY += deltaX * 0.012;
+            mouseTargetX += deltaY * 0.012;
 
             previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         } else if (e.touches.length === 2 && initialPinchDistance) {
@@ -159,7 +160,7 @@ function setupTouchAndMouseControls(container) {
             localStorage.setItem('tiltclock_scale', userScaleFactor.toFixed(2));
             applyAvatarScale();
         }
-    }, { passive: true });
+    }, { passive: false });
 
     container.addEventListener("touchend", () => {
         isDragging = false;
@@ -393,15 +394,15 @@ function animate() {
     const target = avatarMesh || orbitalRingsGroup;
 
     if (target) {
-        /* A. Giroscopio de Smartwatch / Móvil (Sensibilidad optimizada para pantallas pequeñas de reloj) */
-        if (window.gyroData && window.gyroData.beta !== null) {
+        /* A. Giroscopio activo en movimiento (si el usuario no está arrastrando la pantalla) */
+        if (window.gyroData && window.gyroData.beta !== null && !isDragging) {
             const gyroRotX = (window.gyroData.beta * Math.PI) / 180;
             const gyroRotY = (window.gyroData.gamma * Math.PI) / 180;
 
             target.rotation.x += (gyroRotX - target.rotation.x) * 0.08;
             target.rotation.y += (gyroRotY - target.rotation.y) * 0.08;
         } else {
-            /* B. Puntero/Ratón/Arrastre en PC o Emulador de Reloj */
+            /* B. Arrastre táctil en móvil o Puntero/Hover en PC */
             target.rotation.x += (mouseTargetX - target.rotation.x) * 0.08;
             target.rotation.y += (mouseTargetY - target.rotation.y) * 0.08;
         }
