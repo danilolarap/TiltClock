@@ -1,4 +1,4 @@
-/* Módulo renderizado 3D con soporte para compresión DRACO y modelos comprimidos */
+/* Módulo renderizado 3D: Hover (seguimiento libre), Click & Drag (arrastre manual), Giroscopio Móvil y Smartwatch */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -8,6 +8,11 @@ let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0
 let zoomInterval = null;
 let zoomTimeout = null;
 
+/* Coordenadas del puntero para rotación por Hover */
+let mouseTargetX = 0;
+let mouseTargetY = 0;
+
+/* Variables para arrastre (Click & Drag en PC / Arrastre táctil en Smartwatch/Móviles) */
 let isDragging = false;
 let previousTouchPosition = { x: 0, y: 0 };
 let initialPinchDistance = null;
@@ -93,7 +98,39 @@ function initAvatar3D() {
     animate();
 }
 
+/* Sistema Híbrido: Hover + Click & Drag + Gestos en Relojes/Smartphones */
 function setupTouchAndMouseControls(container) {
+    /* 1. SEGUIMIENTO LIBRE DEL MOUSE (Hover en PC) */
+    window.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+            /* 2. ARRASTRE SOSTENIDO (Click & Drag en PC) */
+            const deltaX = e.clientX - previousTouchPosition.x;
+            const deltaY = e.clientY - previousTouchPosition.y;
+
+            mouseTargetY += deltaX * 0.008;
+            mouseTargetX += deltaY * 0.008;
+
+            previousTouchPosition = { x: e.clientX, y: e.clientY };
+        } else {
+            /* Modo Hover (Solo mover sin presionar) */
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+
+            mouseTargetY = ((e.clientX - windowHalfX) / windowHalfX) * 0.8;
+            mouseTargetX = ((e.clientY - windowHalfY) / windowHalfY) * 0.8;
+        }
+    });
+
+    container.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        previousTouchPosition = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener("mouseup", () => {
+        isDragging = false;
+    });
+
+    /* 3. INTERACCIÓN TÁCTIL (Smartwatches y Smartphones) */
     container.addEventListener("touchstart", (e) => {
         if (e.touches.length === 1) {
             isDragging = true;
@@ -110,7 +147,9 @@ function setupTouchAndMouseControls(container) {
             const deltaX = e.touches[0].clientX - previousTouchPosition.x;
             const deltaY = e.touches[0].clientY - previousTouchPosition.y;
 
-            rotateAvatarManual(deltaX * 0.01, deltaY * 0.01);
+            mouseTargetY += deltaX * 0.01;
+            mouseTargetX += deltaY * 0.01;
+
             previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         } else if (e.touches.length === 2 && initialPinchDistance) {
             const currentDistance = getTouchDistance(e.touches);
@@ -126,38 +165,12 @@ function setupTouchAndMouseControls(container) {
         isDragging = false;
         initialPinchDistance = null;
     });
-
-    container.addEventListener("mousedown", (e) => {
-        isDragging = true;
-        previousTouchPosition = { x: e.clientX, y: e.clientY };
-    });
-
-    window.addEventListener("mousemove", (e) => {
-        if (!isDragging) return;
-        const deltaX = e.clientX - previousTouchPosition.x;
-        const deltaY = e.clientY - previousTouchPosition.y;
-
-        rotateAvatarManual(deltaX * 0.008, deltaY * 0.008);
-        previousTouchPosition = { x: e.clientX, y: e.clientY };
-    });
-
-    window.addEventListener("mouseup", () => {
-        isDragging = false;
-    });
 }
 
 function getTouchDistance(touches) {
     const dx = touches[0].clientX - touches[1].clientX;
     const dy = touches[0].clientY - touches[1].clientY;
     return Math.sqrt(dx * dx + dy * dy);
-}
-
-function rotateAvatarManual(deltaX, deltaY) {
-    const target = avatarMesh || orbitalRingsGroup;
-    if (target) {
-        target.rotation.y += deltaX;
-        target.rotation.x += deltaY;
-    }
 }
 
 function createHoloOrbitals() {
@@ -377,14 +390,20 @@ function animate() {
         mixer.update(delta);
     }
 
-    if (window.gyroData && !isDragging) {
-        const targetRotX = (window.gyroData.beta * Math.PI) / 180;
-        const targetRotY = (window.gyroData.gamma * Math.PI) / 180;
+    const target = avatarMesh || orbitalRingsGroup;
 
-        const target = avatarMesh || orbitalRingsGroup;
-        if (target) {
-            target.rotation.x += (targetRotX - target.rotation.x) * 0.05;
-            target.rotation.y += (targetRotY - target.rotation.y) * 0.05;
+    if (target) {
+        /* A. Giroscopio de Smartwatch / Móvil (Sensibilidad optimizada para pantallas pequeñas de reloj) */
+        if (window.gyroData && window.gyroData.beta !== null) {
+            const gyroRotX = (window.gyroData.beta * Math.PI) / 180;
+            const gyroRotY = (window.gyroData.gamma * Math.PI) / 180;
+
+            target.rotation.x += (gyroRotX - target.rotation.x) * 0.08;
+            target.rotation.y += (gyroRotY - target.rotation.y) * 0.08;
+        } else {
+            /* B. Puntero/Ratón/Arrastre en PC o Emulador de Reloj */
+            target.rotation.x += (mouseTargetX - target.rotation.x) * 0.08;
+            target.rotation.y += (mouseTargetY - target.rotation.y) * 0.08;
         }
     }
 
