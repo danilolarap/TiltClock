@@ -1,4 +1,4 @@
-/* Módulo renderizado 3D con compatibilidad para Smartwatch y persistencia de avatar en localStorage */
+/* Módulo renderizado 3D con compatibilidad para Smartwatch, persistencia de avatar y optimización de energía */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -105,6 +105,15 @@ function initAvatar3D() {
     window.addEventListener("resize", onWindowResize);
     animate();
 }
+
+/* Optimización de Energía: Pausar reloj de animación cuando la pestaña pierde foco */
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        if (clock && clock.running) clock.stop();
+    } else {
+        if (clock && !clock.running) clock.start();
+    }
+});
 
 function setupTouchAndMouseControls(container) {
     window.addEventListener("mousemove", (e) => {
@@ -401,6 +410,9 @@ function applyAvatarScale() {
 
 function animate() {
     requestAnimationFrame(animate);
+
+    /* Solo actualizar si la página es visible */
+    if (document.hidden) return;
 
     const delta = clock ? clock.getDelta() : 0.016;
 
