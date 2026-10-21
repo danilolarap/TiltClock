@@ -1,4 +1,4 @@
-/* Podómetro interactivo con control manual y anillo SVG */
+/* Podómetro interactivo con control manual, acelerómetro móvil y anillo SVG */
 window.stepCount = 1259;
 const GOAL_STEPS = 10000;
 let lastAccelY = 0;
@@ -32,6 +32,9 @@ function initPedometer() {
 
     /* Modificar pasos con botones + / - */
     window.addSteps = function (amount) {
+        if (typeof window.requestGyroPermission === "function") {
+            window.requestGyroPermission();
+        }
         window.stepCount = Math.max(0, window.stepCount + amount);
         updateStepUI();
     };
@@ -50,23 +53,24 @@ function initPedometer() {
         });
     }
 
-    /* Detección vía Acelerómetro Móvil */
+    /* Detección física vía Acelerómetro Móvil */
     if (window.DeviceMotionEvent) {
         window.addEventListener("devicemotion", (event) => {
-            const accel = event.accelerationIncludingGravity;
+            const accel = event.accelerationIncludingGravity || event.acceleration;
             if (!accel || accel.y === null) return;
 
             const currentY = accel.y;
             const deltaY = Math.abs(currentY - lastAccelY);
             const now = Date.now();
 
-            if (deltaY > 2.5 && (now - lastStepTime) > 350) {
+            /* Umbral de detección de paso por sacudida/caminata */
+            if (deltaY > 2.2 && (now - lastStepTime) > 320) {
                 window.stepCount++;
                 lastStepTime = now;
                 updateStepUI();
             }
             lastAccelY = currentY;
-        });
+        }, true);
     }
 
     /* Exponer para actualizaciones globales */
