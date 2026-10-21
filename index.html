@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TiltClock 3D - Smartwatch Watchface</title>
+    <meta name="description" content="TiltClock 3D - Interfaz interactiva de smartwatch con soporte de modelos 3D GLB, decodificación Draco y giroscopio">
+    <meta name="theme-color" content="#0b0f19">
+    <title>TiltClock 3D - Smartwatch Watchface UI</title>
     
     <!-- Fuentes Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,22 +17,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body onclick="if(typeof window.requestGyroPermission==='function') window.requestGyroPermission()" ontouchstart="if(typeof window.requestGyroPermission==='function') window.requestGyroPermission()" class="bg-slate-100 text-slate-800 flex flex-col items-center justify-center min-h-screen font-sans select-none p-4 gap-6 transition-colors duration-300 overflow-x-hidden">
+<body class="bg-slate-100 text-slate-800 flex flex-col items-center justify-center min-h-screen font-sans select-none p-4 gap-6 transition-colors duration-300 overflow-x-hidden">
 
     <!-- Barra de Controles -->
     <header class="control-bar-box bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-slate-200/80 flex flex-wrap items-center justify-center gap-3 z-30 transition-colors duration-300">
         
-        <!-- Selector modelos -->
+        <!-- Selector de Modelos de Reloj -->
         <div class="flex items-center gap-2">
             <span id="model-label" class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1 font-clean">Modelo:</span>
-            <button data-device-target="circular" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500 text-white shadow transition-all flex items-center gap-1.5 font-clean">
-                <i class="fa-regular fa-circle text-sm"></i> <span id="btn-label-circular">Circular</span>
+            <button data-device-target="circular" aria-label="Cambiar a pantalla circular" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500 text-white shadow transition-all flex items-center gap-1.5 font-clean">
+                <i class="fa-regular fa-circle text-sm" aria-hidden="true"></i> <span id="btn-label-circular">Circular</span>
             </button>
-            <button data-device-target="square" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
-                <i class="fa-regular fa-square text-sm"></i> <span id="btn-label-square">Apple Watch</span>
+            <button data-device-target="square" aria-label="Cambiar a formato Apple Watch" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
+                <i class="fa-regular fa-square text-sm" aria-hidden="true"></i> <span id="btn-label-square">Apple Watch</span>
             </button>
-            <button data-device-target="band" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
-                <i class="fa-solid fa-capsules text-sm"></i> <span id="btn-label-band">Xiaomi Band</span>
+            <button data-device-target="band" aria-label="Cambiar a formato Xiaomi Band" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-1.5 font-clean">
+                <i class="fa-solid fa-capsules text-sm" aria-hidden="true"></i> <span id="btn-label-band">Xiaomi Band</span>
             </button>
         </div>
 
@@ -39,131 +41,127 @@
         <!-- Selector de Avatares Predefinidos -->
         <div class="flex items-center gap-1.5 flex-wrap">
             <span id="avatar-label" class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1 font-clean">Avatar:</span>
-            <button onclick="window.loadPresetAvatar('holo')" title="Átomo Holográfico" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
-                <i class="fa-solid fa-atom text-cyan-500"></i>
+            <button onclick="window.loadPresetAvatar('holo')" aria-label="Cargar átomo holográfico" title="Átomo Holográfico" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-atom text-cyan-500" aria-hidden="true"></i>
             </button>
-            <button onclick="window.loadPresetAvatar('fox')" title="Zorro 3D" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
-                <i class="fa-solid fa-paw text-cyan-500"></i>
+            <button onclick="window.loadPresetAvatar('fox')" aria-label="Cargar zorro 3D" title="Zorro 3D" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-paw text-cyan-500" aria-hidden="true"></i>
             </button>
-            <button onclick="window.loadPresetAvatar('pajaro')" title="Pájaro" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
-                <i class="fa-solid fa-crow text-cyan-500"></i>
+            <button onclick="window.loadPresetAvatar('pajaro')" aria-label="Cargar pájaro 3D" title="Pájaro 3D" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-crow text-cyan-500" aria-hidden="true"></i>
             </button>
-            <button onclick="window.loadPresetAvatar('mapache')" title="Mapache" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
-                <i class="fa-solid fa-mask text-cyan-500"></i>
+            <button onclick="window.loadPresetAvatar('mapache')" aria-label="Cargar mapache 3D" title="Mapache 3D" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-mask text-cyan-500" aria-hidden="true"></i>
             </button>
-            <button onclick="window.loadPresetAvatar('moneda')" title="Moneda 3D" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
-                <i class="fa-solid fa-coins text-cyan-500"></i>
+            <button onclick="window.loadPresetAvatar('moneda')" aria-label="Cargar moneda 3D" title="Moneda 3D" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-coins text-cyan-500" aria-hidden="true"></i>
             </button>
-            <button onclick="window.loadPresetAvatar('riot')" title="Riot" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
-                <i class="fa-solid fa-shield-halved text-cyan-500"></i>
+            <button onclick="window.loadPresetAvatar('riot')" aria-label="Cargar modelo Riot 3D" title="Riot 3D" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-shield-halved text-cyan-500" aria-hidden="true"></i>
             </button>
         </div>
 
         <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
 
-        <!-- Añadidor Manual de Pasos -->
+        <!-- Ajuste Manual de Pasos -->
         <div class="flex items-center gap-1.5">
             <span id="steps-control-label" class="text-xs font-bold text-slate-500 uppercase tracking-wider font-clean">Pasos:</span>
             <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-0.5">
-                <button onclick="window.addSteps(-500)" title="Restar 500 pasos" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all shadow-sm active:scale-90">
-                    <i class="fa-solid fa-minus text-[10px]"></i>
+                <button onclick="window.addSteps(-500)" aria-label="Restar 500 pasos" title="Restar 500 pasos" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all shadow-sm active:scale-90">
+                    <i class="fa-solid fa-minus text-[10px]" aria-hidden="true"></i>
                 </button>
-                <input id="step-input" type="number" min="0" max="50000" value="1259" class="w-16 text-center text-xs font-bold bg-transparent text-slate-800 dark:text-slate-100 focus:outline-none font-clean px-1">
-                <button onclick="window.addSteps(500)" title="Sumar 500 pasos" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all shadow-sm active:scale-90">
-                    <i class="fa-solid fa-plus text-[10px]"></i>
+                <input id="step-input" type="number" min="0" max="50000" value="1259" aria-label="Cantidad de pasos" class="w-16 text-center text-xs font-bold bg-transparent text-slate-800 dark:text-slate-100 focus:outline-none font-clean px-1">
+                <button onclick="window.addSteps(500)" aria-label="Sumar 500 pasos" title="Sumar 500 pasos" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all shadow-sm active:scale-90">
+                    <i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
 
         <div class="h-4 w-px bg-slate-300 hidden sm:block"></div>
 
-        <!-- Interruptores Tema/Idioma -->
+        <!-- Interruptores Tema e Idioma -->
         <div class="flex items-center gap-2">
-            <!-- Botón Tema -->
-            <button id="theme-toggle-btn" title="Cambiar Tema" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1.5 font-clean border border-slate-200">
-                <i id="theme-icon" class="fa-solid fa-moon text-slate-600"></i>
+            <button id="theme-toggle-btn" aria-label="Cambiar tema de la interfaz" title="Cambiar Tema" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1.5 font-clean border border-slate-200">
+                <i id="theme-icon" class="fa-solid fa-moon text-slate-600" aria-hidden="true"></i>
             </button>
 
-            <!-- Botón Idioma -->
-            <button id="lang-toggle-btn" title="Cambiar Idioma" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
-                <i class="fa-solid fa-globe text-cyan-500"></i>
+            <button id="lang-toggle-btn" aria-label="Cambiar idioma de la interfaz" title="Cambiar Idioma" class="p-1.5 px-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1 font-clean border border-slate-200">
+                <i class="fa-solid fa-globe text-cyan-500" aria-hidden="true"></i>
                 <span id="lang-text">ES</span>
             </button>
         </div>
 
     </header>
 
-    <!-- Contenedor principal con animación de flotado -->
+    <!-- Contenedor Principal -->
     <main class="relative flex flex-col items-center watch-container-animate">
         
-        <!-- Correa superior -->
+        <!-- Correa Superior -->
         <div id="watch-strap-top" class="watch-strap-top device-circular h-16 bg-gradient-to-b from-slate-300 to-slate-200 rounded-t-2xl border-t border-x border-slate-300/60 shadow-inner flex justify-center pt-2 transition-all duration-300">
             <div class="w-12 h-1 bg-slate-300/80 rounded-full"></div>
         </div>
 
-        <!-- Marco reloj -->
+        <!-- Marco del Smartwatch -->
         <div id="watch-frame" class="watch-frame device-circular relative bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 p-4 border-4 border-slate-200/80 flex items-center justify-center">
             
-            <!-- Botones laterales -->
+            <!-- Botones Físicos Laterales -->
             <div id="watch-crown" class="absolute -right-3 top-1/2 -translate-y-1/2 w-3 h-10 bg-slate-300 rounded-r border border-slate-400/50 shadow"></div>
             <div id="watch-side-btn" class="absolute -right-2 top-1/3 w-2 h-6 bg-slate-300 rounded-r border border-slate-400/50 shadow"></div>
 
-            <!-- Pantalla watchface -->
+            <!-- Pantalla Watchface -->
             <div class="watch-screen relative w-full h-full bg-slate-50 overflow-hidden border border-slate-200 shadow-inner flex flex-col items-center justify-between p-4 text-cyan-600 transition-colors duration-300">
                 
-                <!-- Lienzo 3D -->
+                <!-- Lienzo 3D WebGL -->
                 <div id="avatar-canvas-container" class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
 
-                <!-- Anillo SVG Meta de Pasos -->
+                <!-- Anillo SVG de Meta de Pasos -->
                 <svg class="absolute inset-0 w-full h-full z-10 pointer-events-none transform -rotate-90" viewBox="0 0 200 200">
                     <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="2.5" class="text-slate-200/40 dark:text-slate-800/40" fill="none"/>
                     <circle id="step-progress-ring" cx="100" cy="100" r="80" stroke="currentColor" stroke-width="3" class="text-cyan-500 step-ring-circle" fill="none" stroke-linecap="round"/>
                 </svg>
 
-                <!-- Botones Flotantes Ajuste Escala y Animación con Hold Zoom -->
+                <!-- Controles Flotantes de Escala y Animación -->
                 <div class="scale-controls-container absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5">
-                    <button onmousedown="window.startZoomHold(0.1)" onmouseup="window.stopZoomHold()" onmouseleave="window.stopZoomHold()" ontouchstart="window.startZoomHold(0.1)" ontouchend="window.stopZoomHold()" title="Aumentar tamaño (mantén pulsado)" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
-                        <i class="fa-solid fa-plus"></i>
+                    <button onmousedown="window.startZoomHold(0.1)" onmouseup="window.stopZoomHold()" onmouseleave="window.stopZoomHold()" ontouchstart="window.startZoomHold(0.1)" ontouchend="window.stopZoomHold()" aria-label="Aumentar tamaño de avatar" title="Aumentar tamaño (mantén pulsado)" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
                     </button>
-                    <button onmousedown="window.startZoomHold(-0.1)" onmouseup="window.stopZoomHold()" onmouseleave="window.stopZoomHold()" ontouchstart="window.startZoomHold(-0.1)" ontouchend="window.stopZoomHold()" title="Reducir tamaño (mantén pulsado)" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
-                        <i class="fa-solid fa-minus"></i>
+                    <button onmousedown="window.startZoomHold(-0.1)" onmouseup="window.stopZoomHold()" onmouseleave="window.stopZoomHold()" ontouchstart="window.startZoomHold(-0.1)" ontouchend="window.stopZoomHold()" aria-label="Reducir tamaño de avatar" title="Reducir tamaño (mantén pulsado)" class="scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
+                        <i class="fa-solid fa-minus" aria-hidden="true"></i>
                     </button>
-                    <button id="anim-toggle-btn" onclick="window.toggleAvatarAnimation()" title="Pausar / Reproducir animación" class="hidden scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
-                        <i id="anim-icon" class="fa-solid fa-pause"></i>
+                    <button id="anim-toggle-btn" onclick="window.toggleAvatarAnimation()" aria-label="Alternar animación de modelo" title="Pausar / Reproducir animación" class="hidden scale-btn w-6 h-6 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow text-slate-700 dark:text-slate-200 flex items-center justify-center text-[10px] font-bold hover:bg-cyan-500 hover:text-white transition-all active:scale-90">
+                        <i id="anim-icon" class="fa-solid fa-pause" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <!-- Modulo superior -->
+                <!-- Módulo Superior (Fecha y Pasos) -->
                 <div class="z-20 flex flex-col items-center gap-0.5 mt-2 pointer-events-none">
                     <div class="glass-card flex items-center gap-2 text-[10px] text-slate-600 font-bold bg-white/80 px-3 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean transition-colors duration-300">
-                        <span><i class="fa-regular fa-calendar text-cyan-500 mr-1"></i><span id="watch-date">LUN, 24 OCT</span></span>
+                        <span><i class="fa-regular fa-calendar text-cyan-500 mr-1" aria-hidden="true"></i><span id="watch-date">LUN, 24 OCT</span></span>
                         <span>•</span>
                         <div id="step-container" class="flex items-center gap-1">
-                            <i class="fa-solid fa-person-walking text-cyan-500"></i>
+                            <i class="fa-solid fa-person-walking text-cyan-500" aria-hidden="true"></i>
                             <span id="watch-steps" class="font-bold text-slate-800">1,259</span>
                             <span id="steps-label" class="text-[9px] text-slate-500">PASOS</span>
                         </div>
                     </div>
 
-                    <!-- Hora digital -->
+                    <!-- Hora Digital -->
                     <div class="time-display-box mt-1 px-4 py-0.5 rounded-2xl bg-white/75 backdrop-blur-md border border-white/60 shadow-md flex items-baseline gap-1 transition-colors duration-300">
                         <span id="watch-time" class="text-3xl sm:text-4xl font-bold text-slate-900 font-clock tracking-tight">08:27</span>
                         <span id="watch-ampm" class="text-xs font-bold text-cyan-600 font-clock">AM</span>
                     </div>
                 </div>
 
-                <!-- Modulo inferior -->
+                <!-- Módulo Inferior (Batería y Carga de Avatar) -->
                 <div class="z-20 flex flex-col items-center gap-1 w-full mb-1">
                     
-                    <!-- Estado bateria -->
                     <div class="glass-card flex items-center justify-center text-[10px] text-slate-700 font-bold bg-white/80 px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-sm border border-slate-200/60 font-clean transition-colors duration-300">
-                        <span><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1"></i><span id="watch-battery">85%</span></span>
+                        <span><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1" aria-hidden="true"></i><span id="watch-battery">85%</span></span>
                     </div>
 
-                    <!-- Boton subida -->
                     <div id="upload-btn-wrapper" class="w-full flex justify-center">
                         <label title="Cargar o cambiar modelo .GLB" class="curved-btn bg-cyan-500 hover:bg-cyan-600 active:scale-98 text-white font-bold cursor-pointer flex items-center justify-center gap-1.5 border border-cyan-300/50">
-                            <i class="fa-solid fa-box-archive text-xs"></i>
+                            <i class="fa-solid fa-box-archive text-xs" aria-hidden="true"></i>
                             <span id="upload-btn-text" class="text-[10px] tracking-wider uppercase font-clean">Cargar Avatar .GLB</span>
                             <input type="file" id="glb-input" accept=".glb,.gltf" class="hidden">
                         </label>
@@ -174,18 +172,18 @@
             </div>
         </div>
 
-        <!-- Correa inferior -->
+        <!-- Correa Inferior -->
         <div id="watch-strap-bottom" class="watch-strap-bottom device-circular h-16 bg-gradient-to-t from-slate-300 to-slate-200 rounded-b-2xl border-b border-x border-slate-300/60 shadow-inner flex justify-center pb-2 transition-all duration-300">
             <div class="w-12 h-1 bg-slate-300/80 rounded-full self-end"></div>
         </div>
     </main>
 
-    <!-- Librerias 3D y Decodificador Draco -->
+    <!-- Librerías 3D y Decodificador Draco -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
 
-    <!-- Scripts aplicacion -->
+    <!-- Scripts de la Aplicación -->
     <script src="js/gyroscope.js"></script>
     <script src="js/pedometer.js"></script>
     <script src="js/avatar3d.js"></script>
