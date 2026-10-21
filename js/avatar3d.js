@@ -198,9 +198,29 @@ function getTouchDistance(touches) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
+/* Resaltado visual en los botones del selector de avatar */
+function updateAvatarButtonsUI(activeType) {
+    const avatarButtons = document.querySelectorAll('button[onclick*="loadPresetAvatar"]');
+    if (!avatarButtons.length) return;
+
+    avatarButtons.forEach((btn) => {
+        const onClickAttr = btn.getAttribute('onclick') || '';
+        const isSelected = onClickAttr.includes(`'${activeType}'`);
+
+        if (isSelected) {
+            btn.classList.add('border-cyan-500', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/40');
+            btn.classList.remove('bg-slate-100', 'border-slate-200');
+        } else {
+            btn.classList.remove('border-cyan-500', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/40');
+            btn.classList.add('bg-slate-100', 'border-slate-200');
+        }
+    });
+}
+
 function createHoloOrbitals() {
     clearCurrentAvatar();
     localStorage.setItem('tiltclock_avatar', 'holo');
+    updateAvatarButtonsUI('holo');
 
     orbitalRingsGroup = new THREE.Group();
 
@@ -245,6 +265,8 @@ window.loadPresetAvatar = function(type) {
     if (!sources || !sources.length) return;
 
     localStorage.setItem('tiltclock_avatar', type);
+    updateAvatarButtonsUI(type);
+
     const loader = createGLTFLoader();
 
     function tryLoadSource(index) {
@@ -278,6 +300,7 @@ window.loadGLBModel = function(file) {
 
         loader.parse(contents, "", (gltf) => {
             setupLoadedGLTF(gltf);
+            updateAvatarButtonsUI('custom');
         });
     };
 };
