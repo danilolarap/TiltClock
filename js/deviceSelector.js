@@ -1,16 +1,16 @@
-/* Selector de dispositivos con persistencia */
+/* Módulo de Selección de Formato de Smartwatch con Persistencia en localStorage */
 (function () {
-    /* Tipos permitidos */
+    /* Formatos de reloj permitidos */
     const DEVICES = {
         CIRCULAR: 'circular',
         SQUARE: 'square',
         BAND: 'band'
     };
 
-    /* Cargar dispositivo guardado */
+    /* Cargar dispositivo guardado previamente en localStorage */
     let currentDevice = localStorage.getItem('tiltclock_device') || DEVICES.CIRCULAR;
 
-    /* Inicializar eventos */
+    /* Inicialización de eventos e interfaz */
     function initDeviceSelector() {
         const buttons = document.querySelectorAll('[data-device-target]');
         if (!buttons.length) return;
@@ -24,13 +24,11 @@
             });
         });
 
-        /* Aplicar dispositivo inicial cargado de localStorage */
-        if (currentDevice !== DEVICES.CIRCULAR) {
-            setDevice(currentDevice);
-        }
+        /* Aplicar estado inicial según el formato guardado */
+        setDevice(currentDevice);
     }
 
-    /* Cambiar dispositivo */
+    /* Cambiar la variante visual del smartwatch */
     function setDevice(deviceType) {
         currentDevice = deviceType;
         localStorage.setItem('tiltclock_device', deviceType);
@@ -43,19 +41,19 @@
 
         if (!watchFrame) return;
 
-        /* Limpiar clases */
+        /* Limpiar clases de dispositivos previos */
         Object.values(DEVICES).forEach((d) => {
             watchFrame.classList.remove(`device-${d}`);
             if (strapTop) strapTop.classList.remove(`device-${d}`);
             if (strapBottom) strapBottom.classList.remove(`device-${d}`);
         });
 
-        /* Aplicar variante */
+        /* Aplicar nueva clase de variante visual */
         watchFrame.classList.add(`device-${deviceType}`);
         if (strapTop) strapTop.classList.add(`device-${deviceType}`);
         if (strapBottom) strapBottom.classList.add(`device-${deviceType}`);
 
-        /* Ajustar botones */
+        /* Ocultar o mostrar botones físicos según el formato (e.g. Band no usa corona física) */
         if (crownButton && sideButton) {
             if (deviceType === DEVICES.BAND) {
                 crownButton.classList.add('hidden');
@@ -66,7 +64,7 @@
             }
         }
 
-        /* Actualizar botones UI */
+        /* Actualizar el estado visual activo de los botones del selector */
         document.querySelectorAll('[data-device-target]').forEach((btn) => {
             const isSelected = btn.getAttribute('data-device-target') === deviceType;
             if (isSelected) {
@@ -78,7 +76,7 @@
             }
         });
 
-        /* Redimensionar 3D al finalizar la animación CSS */
+        /* Notificar al lienzo de Three.js para reajustar camara y proyeccion */
         if (typeof window.onWindowResize === 'function') {
             setTimeout(() => {
                 window.onWindowResize();
@@ -86,7 +84,10 @@
         }
     }
 
-    /* Funciones globales */
+    /* Exponer funciones a la API global */
     window.initDeviceSelector = initDeviceSelector;
     window.setDevice = setDevice;
+
+    /* Auto-inicializar cuando el DOM esté listo */
+    document.addEventListener("DOMContentLoaded", initDeviceSelector);
 })();
