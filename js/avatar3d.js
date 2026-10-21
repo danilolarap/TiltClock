@@ -1,4 +1,4 @@
-/* Módulo renderizado 3D: Hover (seguimiento libre), Click & Drag (arrastre manual), Giroscopio Móvil y Smartwatch */
+/* Módulo renderizado 3D con compatibilidad para Smartwatch (Hover, Arrastre Táctil y Giroscopio) */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -8,11 +8,11 @@ let userScaleFactor = parseFloat(localStorage.getItem('tiltclock_scale')) || 1.0
 let zoomInterval = null;
 let zoomTimeout = null;
 
-/* Coordenadas del puntero para rotación por Hover */
+/* Coordenadas para seguimiento en PC (Hover) */
 let mouseTargetX = 0;
 let mouseTargetY = 0;
 
-/* Variables para arrastre (Click & Drag en PC / Arrastre táctil en Smartwatch/Móviles) */
+/* Variables de interacción táctil (Smartwatches / Móviles) */
 let isDragging = false;
 let previousTouchPosition = { x: 0, y: 0 };
 let initialPinchDistance = null;
@@ -29,7 +29,6 @@ const PRESET_MODELS = {
     riot: ["assets/models/riot.glb"]
 };
 
-/* Configuración de cargador GLTF con soporte Draco */
 function createGLTFLoader() {
     const loader = new THREE.GLTFLoader();
     
@@ -98,9 +97,9 @@ function initAvatar3D() {
     animate();
 }
 
-/* Sistema Híbrido: Hover + Click & Drag + Arrastre Táctil en Móviles */
+/* Eventos adaptados para Smartwatch y PC */
 function setupTouchAndMouseControls(container) {
-    /* 1. SEGUIMIENTO Y ARRASTRE CON RATÓN (PC) */
+    /* 1. SEGUIMIENTO DE PUNTERO (Hover en PC) */
     window.addEventListener("mousemove", (e) => {
         if (isDragging) {
             const deltaX = e.clientX - previousTouchPosition.x;
@@ -128,30 +127,36 @@ function setupTouchAndMouseControls(container) {
         isDragging = false;
     });
 
-    /* 2. INTERACCIÓN TÁCTIL MÓVIL (Con prevención de desplazamiento nativo) */
-    container.addEventListener("touchstart", (e) => {
+    /* 2. ARRASTRE TÁCTIL DEDICADO A SMARTWATCH / PANTALLAS TÁCTILES */
+    const canvasElement = container.querySelector('canvas') || container;
+
+    canvasElement.addEventListener("touchstart", (e) => {
         if (e.touches.length === 1) {
             isDragging = true;
-            previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            previousTouchPosition = { 
+                x: e.touches[0].clientX || e.touches[0].pageX, 
+                y: e.touches[0].clientY || e.touches[0].pageY 
+            };
         } else if (e.touches.length === 2) {
             isDragging = false;
             initialPinchDistance = getTouchDistance(e.touches);
             initialScaleOnPinch = userScaleFactor;
         }
-    }, { passive: false });
+    }, { passive: true });
 
-    container.addEventListener("touchmove", (e) => {
-        /* Prevenir que el navegador haga scroll al arrastrar sobre el avatar */
-        if (e.cancelable) e.preventDefault();
-
+    canvasElement.addEventListener("touchmove", (e) => {
         if (isDragging && e.touches.length === 1) {
-            const deltaX = e.touches[0].clientX - previousTouchPosition.x;
-            const deltaY = e.touches[0].clientY - previousTouchPosition.y;
+            const currentX = e.touches[0].clientX || e.touches[0].pageX;
+            const currentY = e.touches[0].clientY || e.touches[0].pageY;
 
-            mouseTargetY += deltaX * 0.012;
-            mouseTargetX += deltaY * 0.012;
+            const deltaX = currentX - previousTouchPosition.x;
+            const deltaY = currentY - previousTouchPosition.y;
 
-            previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            /* Sensibilidad adaptada a pantallas pequeñas de smartwatch */
+            mouseTargetY += deltaX * 0.015;
+            mouseTargetX += deltaY * 0.015;
+
+            previousTouchPosition = { x: currentX, y: currentY };
         } else if (e.touches.length === 2 && initialPinchDistance) {
             const currentDistance = getTouchDistance(e.touches);
             const scaleFactor = currentDistance / initialPinchDistance;
@@ -160,9 +165,14 @@ function setupTouchAndMouseControls(container) {
             localStorage.setItem('tiltclock_scale', userScaleFactor.toFixed(2));
             applyAvatarScale();
         }
-    }, { passive: false });
+    }, { passive: true });
 
-    container.addEventListener("touchend", () => {
+    canvasElement.addEventListener("touchend", () => {
+        isDragging = false;
+        initialPinchDistance = null;
+    });
+
+    canvasElement.addEventListener("touchcancel", () => {
         isDragging = false;
         initialPinchDistance = null;
     });
@@ -394,7 +404,7 @@ function animate() {
     const target = avatarMesh || orbitalRingsGroup;
 
     if (target) {
-        /* A. Giroscopio activo en movimiento (si el usuario no está arrastrando la pantalla) */
+        /* Si el usuario está tocando/arrastrando con el dedo, priorizar la entrada táctil sobre el giroscopio */
         if (window.gyroData && window.gyroData.beta !== null && !isDragging) {
             const gyroRotX = (window.gyroData.beta * Math.PI) / 180;
             const gyroRotY = (window.gyroData.gamma * Math.PI) / 180;
@@ -402,7 +412,7 @@ function animate() {
             target.rotation.x += (gyroRotX - target.rotation.x) * 0.08;
             target.rotation.y += (gyroRotY - target.rotation.y) * 0.08;
         } else {
-            /* B. Arrastre táctil en móvil o Puntero/Hover en PC */
+            /* Modo Arrastre Táctil (Smartwatch/Móvil) o Puntero (PC) */
             target.rotation.x += (mouseTargetX - target.rotation.x) * 0.08;
             target.rotation.y += (mouseTargetY - target.rotation.y) * 0.08;
         }
