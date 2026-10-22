@@ -53,4 +53,6 @@ TiltClock/
 ├── LICENSE              # Licencia de código abierto MIT
 └── README.md            # Documentación técnica del repositorio
 
-## Autor\Desarrollado por [Danilo Lara](https://github.com/danilolarap)
+## Autor
+
+Desarrollado por [Danilo Lara](https://github.com/danilolarap).
