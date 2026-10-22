@@ -1,18 +1,31 @@
-/* Podómetro interactivo con control manual, acelerómetro móvil, persistencia y anillo SVG */
+/**
+ * @fileoverview Módulo de podómetro interactivo para TiltClock.
+ * Incluye detección de pasos en tiempo real vía Acelerómetro (DeviceMotion),
+ * control manual con entrada de texto, botones dinámicos +/-, renderizado de anillo SVG
+ * y persistencia en localStorage.
+ *
+ * @author Danilo Lara <danilolarap>
+ */
+
 window.stepCount = parseInt(localStorage.getItem('tiltclock_steps'), 10) || 1259;
 const GOAL_STEPS = 10000;
 let lastAccelY = 0;
 let lastStepTime = 0;
 
+/**
+ * Inicializa los eventos del podómetro, escuchadores del acelerómetro y la interfaz.
+ */
 function initPedometer() {
     const watchSteps = document.getElementById("watch-steps");
     const stepInput = document.getElementById("step-input");
     const stepProgressRing = document.getElementById("step-progress-ring");
 
-    /* Actualizar UI, progreso del anillo SVG y guardar en localStorage */
+    /**
+     * Actualiza la interfaz de usuario, recalcula el trazo del anillo SVG y guarda en localStorage.
+     */
     function updateStepUI() {
         if (watchSteps) {
-            watchSteps.innerText = window.stepCount.toLocaleString();
+            watchSteps.innerText = window.stepCount.toLocaleString("es-ES");
         }
 
         if (stepInput && document.activeElement !== stepInput) {
@@ -29,11 +42,13 @@ function initPedometer() {
             stepProgressRing.style.strokeDashoffset = offset;
         }
 
-        /* Guardar conteo actual de pasos en el almacenamiento local */
         localStorage.setItem('tiltclock_steps', window.stepCount);
     }
 
-    /* Modificar pasos mediante botones + / - */
+    /**
+     * Incrementa o decrementa la cantidad de pasos mediante los botones de la interfaz.
+     * @param {number} amount - Pasos a sumar o restar.
+     */
     window.addSteps = function (amount) {
         if (typeof window.requestGyroPermission === "function") {
             window.requestGyroPermission();
@@ -42,14 +57,16 @@ function initPedometer() {
         updateStepUI();
     };
 
-    /* Ajustar pasos directamente desde el campo numérico */
+    /**
+     * Ajusta el conteo de pasos directamente desde el valor numérico ingresado en el input.
+     * @param {string|number} value - Valor numérico ingresado por el usuario.
+     */
     window.setStepsFromInput = function (value) {
         const parsed = parseInt(value, 10);
         window.stepCount = isNaN(parsed) ? 0 : Math.max(0, parsed);
         updateStepUI();
     };
 
-    /* Escuchar cambios directos en el input */
     if (stepInput) {
         stepInput.addEventListener("input", (e) => {
             window.setStepsFromInput(e.target.value);
@@ -76,7 +93,6 @@ function initPedometer() {
         }, true);
     }
 
-    /* Exponer función de actualización de interfaz globalmente */
     window.updateStepUI = updateStepUI;
     updateStepUI();
 }
