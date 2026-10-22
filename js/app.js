@@ -1,81 +1,81 @@
-/* Orquestador principal de la aplicación y ciclo de vida del reloj */
-document.addEventListener("DOMContentLoaded", () => {
-    /* Inicializar subsistemas del proyecto */
-    if (typeof window.initGyroscope === "function") window.initGyroscope();
-    if (typeof window.initPedometer === "function") window.initPedometer();
-    if (typeof window.initAvatar3D === "function") window.initAvatar3D();
-    if (typeof window.initDeviceSelector === "function") window.initDeviceSelector();
-    if (typeof window.initThemeAndLang === "function") window.initThemeAndLang();
+/**
+ * @fileoverview Orquestador principal de la aplicación TiltClock.
+ * Gestiona el reloj digital en tiempo real, el formateo i18n de fecha/hora,
+ * la carga de modelos .GLB del usuario y la inicialización centralizada de componentes.
+ *
+ * @author Danilo Lara <danilolarap>
+ */
 
-    let lastTimeString = "";
-    let lastDateString = "";
+/**
+ * Actualiza la hora y la fecha formateada en la pantalla del smartwatch.
+ * Utiliza las traducciones de días y meses según el idioma activo.
+ */
+function updateWatchTime() {
+    const now = new Date();
 
-    /* Actualizar la hora y fecha en la pantalla del smartwatch */
-    function updateWatchTime() {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = String(now.getMinutes()).padStart(2, "0");
-        const ampm = hours >= 12 ? "PM" : "AM";
+    const timeElem = document.getElementById("watch-time");
+    const ampmElem = document.getElementById("watch-ampm");
+    const dateElem = document.getElementById("watch-date");
 
-        hours = hours % 12 || 12;
-        const formattedHours = String(hours).padStart(2, "0");
-        const currentTimeString = `${formattedHours}:${minutes}`;
+    /* Formato de hora de 12 horas con ceros a la izquierda */
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
 
-        const watchTimeElem = document.getElementById("watch-time");
-        const watchAmpmElem = document.getElementById("watch-ampm");
-        const watchDateElem = document.getElementById("watch-date");
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const formattedHours = String(hours).padStart(2, "0");
 
-        /* Evitar manipulaciones innecesarias del DOM si la hora no ha cambiado */
-        if (watchTimeElem && currentTimeString !== lastTimeString) {
-            watchTimeElem.innerText = currentTimeString;
-            lastTimeString = currentTimeString;
-        }
+    if (timeElem) timeElem.innerText = `${formattedHours}:${minutes}`;
+    if (ampmElem) ampmElem.innerText = ampm;
 
-        if (watchAmpmElem) {
-            watchAmpmElem.innerText = ampm;
-        }
+    /* Formateo de fecha internacionalizada */
+    if (dateElem) {
+        const t = typeof window.getTranslations === "function" ? window.getTranslations() : null;
+        
+        const dayNames = t && t.days ? t.days : ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+        const monthNames = t && t.months ? t.months : ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
-        /* Formatear y traducir fecha según el idioma activo */
-        if (watchDateElem) {
-            const t = typeof window.getTranslations === "function" ? window.getTranslations() : null;
-            let formattedDate = "";
+        const dayName = dayNames[now.getDay()];
+        const dayNum = now.getDate();
+        const monthName = monthNames[now.getMonth()];
 
-            if (t && t.days && t.months) {
-                const dayName = t.days[now.getDay()];
-                const monthName = t.months[now.getMonth()];
-                const dateNum = now.getDate();
-                formattedDate = `${dayName}, ${dateNum} ${monthName}`;
-            } else {
-                const options = { weekday: 'short', day: 'numeric', month: 'short' };
-                formattedDate = now.toLocaleDateString('es-ES', options).toUpperCase();
-            }
-
-            if (formattedDate !== lastDateString) {
-                watchDateElem.innerText = formattedDate;
-                lastDateString = formattedDate;
-            }
-        }
+        dateElem.innerText = `${dayName}, ${dayNum} ${monthName}`;
     }
+}
 
-    /* Exponer función globalmente para actualizar de inmediato al cambiar idioma */
-    window.updateWatchTime = updateWatchTime;
+/**
+ * Vincula el evento de selección de archivo local para cargar modelos custom .GLB/.GLTF.
+ */
+function initFileUpload() {
+    const glbInput = document.getElementById("glb-input");
+    if (!glbInput) return;
 
-    /* Sincronización eficiente del tiempo */
+    glbInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file && typeof window.loadGLBModel === "function") {
+            window.loadGLBModel(file);
+        }
+    });
+}
+
+/**
+ * Inicializador global ejecutado al completar la carga del DOM.
+ */
+document.addEventListener("DOMContentLoaded", () => {
     updateWatchTime();
     setInterval(updateWatchTime, 1000);
 
-    /* Manejo del input de carga de archivos de modelos 3D (.GLB) */
-    const glbInput = document.getElementById("glb-input");
-    if (glbInput) {
-        glbInput.addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (file && file.name.toLowerCase().endsWith(".glb")) {
-                if (typeof window.loadGLBModel === "function") {
-                    window.loadGLBModel(file);
-                }
-            } else if (file) {
-                console.warn("El archivo seleccionado debe ser un modelo .GLB válido.");
-            }
-        });
+    if (typeof window.initDeviceSelector === "function") {
+        window.initDeviceSelector();
     }
+
+    if (typeof window.initAvatar3D === "function") {
+        window.initAvatar3D();
+    }
+
+    initFileUpload();
 });
+
+/* Exponer función de actualización de tiempo globalmente */
+window.updateWatchTime = updateWatchTime;
