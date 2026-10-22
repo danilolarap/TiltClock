@@ -1,4 +1,4 @@
-/* Módulo renderizado 3D con compatibilidad para Smartwatch, persistencia de avatar y optimización de memoria GPU */
+/* Módulo renderizado 3D con compatibilidad para Smartwatch, persistencia de avatar, optimización de memoria GPU y límite de velocidad angular */
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -479,8 +479,12 @@ function animate() {
             const gyroRotX = (window.gyroData.beta * Math.PI) / 180;
             const gyroRotY = (window.gyroData.gamma * Math.PI) / 180;
 
-            target.rotation.x += (gyroRotX - target.rotation.x) * 0.08;
-            target.rotation.y += (gyroRotY - target.rotation.y) * 0.08;
+            /* Calcular delta y limitar velocidad máxima de rotación (Max step 0.05 rad/frame) */
+            const deltaRotX = Math.max(-0.05, Math.min(0.05, (gyroRotX - target.rotation.x) * 0.08));
+            const deltaRotY = Math.max(-0.05, Math.min(0.05, (gyroRotY - target.rotation.y) * 0.08));
+
+            target.rotation.x += deltaRotX;
+            target.rotation.y += deltaRotY;
         } else {
             target.rotation.x += (mouseTargetX - target.rotation.x) * 0.08;
             target.rotation.y += (mouseTargetY - target.rotation.y) * 0.08;
