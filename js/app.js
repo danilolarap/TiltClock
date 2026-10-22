@@ -1,7 +1,7 @@
 /**
  * @fileoverview Orquestador principal de la aplicación TiltClock.
  * Gestiona el reloj digital en tiempo real, el formateo i18n de fecha/hora,
- * la carga de modelos .GLB del usuario y la inicialización centralizada de componentes.
+ * la carga de modelos .GLB del usuario, el modal desplegable estilo iOS y la inicialización centralizada.
  *
  * @author Danilo Lara <danilolarap>
  */
@@ -60,6 +60,42 @@ function initFileUpload() {
 }
 
 /**
+ * Inicializa los eventos del modal desplegable de ajustes al estilo iOS (AirPods Sheet).
+ */
+function initIOSModal() {
+    const openBtn = document.getElementById("open-ios-modal-btn");
+    const closeBtn = document.getElementById("close-ios-modal-btn");
+    const modal = document.getElementById("ios-settings-modal");
+
+    if (!modal) return;
+
+    function openModal() {
+        modal.classList.add("modal-active");
+    }
+
+    function closeModal() {
+        modal.classList.remove("modal-active");
+    }
+
+    if (openBtn) openBtn.addEventListener("click", openModal);
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+    /* Cerrar al hacer clic o tocar fuera de la tarjeta flotante */
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    /* Cerrar al presionar la tecla Escape */
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("modal-active")) {
+            closeModal();
+        }
+    });
+}
+
+/**
  * Inicializador global ejecutado al completar la carga del DOM.
  */
 document.addEventListener("DOMContentLoaded", () => {
@@ -75,7 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     initFileUpload();
+    initIOSModal();
 });
 
-/* Exponer función de actualización de tiempo globalmente */
+/* Exponer funciones globales */
 window.updateWatchTime = updateWatchTime;
+window.initIOSModal = initIOSModal;
