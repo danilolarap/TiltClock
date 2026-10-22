@@ -1,4 +1,4 @@
-# TiltClock 3D - Smartwatch Watchface UI
+# TiltClock 3D
 
 ## Descripción General
 
