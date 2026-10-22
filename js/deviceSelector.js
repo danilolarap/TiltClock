@@ -1,93 +1,82 @@
-/* Módulo de Selección de Formato de Smartwatch con Persistencia en localStorage */
-(function () {
-    /* Formatos de reloj permitidos */
-    const DEVICES = {
-        CIRCULAR: 'circular',
-        SQUARE: 'square',
-        BAND: 'band'
-    };
+/**
+ * @fileoverview Módulo selector y conmutador de formato de dispositivo para TiltClock.
+ * Alterna dinámicamente el marco visual del reloj (Circular, Apple Watch, Xiaomi Band),
+ * actualiza el estado activo/inactivo de los botones del modal e informa al lienzo 3D.
+ *
+ * @author Danilo Lara <danilolarap>
+ */
 
-    /* Cargar dispositivo guardado previamente en localStorage */
-    let currentDevice = localStorage.getItem('tiltclock_device') || DEVICES.CIRCULAR;
+/**
+ * Inicializa los eventos de clic en los botones de selección de dispositivo
+ * y restaura el formato previo guardado en localStorage.
+ */
+function initDeviceSelector() {
+    const deviceButtons = document.querySelectorAll("[data-device-target]");
+    if (!deviceButtons.length) return;
 
-    /* Inicialización de eventos e interfaz */
-    function initDeviceSelector() {
-        const buttons = document.querySelectorAll('[data-device-target]');
-        if (!buttons.length) return;
+    /* Cargar dispositivo guardado o usar circular por defecto */
+    const savedDevice = localStorage.getItem("tiltclock_device") || "circular";
+    setDeviceFormat(savedDevice);
 
-        buttons.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const targetDevice = btn.getAttribute('data-device-target');
-                if (targetDevice && targetDevice !== currentDevice) {
-                    setDevice(targetDevice);
-                }
-            });
-        });
-
-        /* Aplicar estado inicial según el formato guardado */
-        setDevice(currentDevice);
-    }
-
-    /* Cambiar la variante visual del smartwatch */
-    function setDevice(deviceType) {
-        currentDevice = deviceType;
-        localStorage.setItem('tiltclock_device', deviceType);
-
-        const watchFrame = document.getElementById('watch-frame');
-        const strapTop = document.getElementById('watch-strap-top');
-        const strapBottom = document.getElementById('watch-strap-bottom');
-        const crownButton = document.getElementById('watch-crown');
-        const sideButton = document.getElementById('watch-side-btn');
-
-        if (!watchFrame) return;
-
-        /* Limpiar clases de dispositivos previos */
-        Object.values(DEVICES).forEach((d) => {
-            watchFrame.classList.remove(`device-${d}`);
-            if (strapTop) strapTop.classList.remove(`device-${d}`);
-            if (strapBottom) strapBottom.classList.remove(`device-${d}`);
-        });
-
-        /* Aplicar nueva clase de variante visual */
-        watchFrame.classList.add(`device-${deviceType}`);
-        if (strapTop) strapTop.classList.add(`device-${deviceType}`);
-        if (strapBottom) strapBottom.classList.add(`device-${deviceType}`);
-
-        /* Ocultar o mostrar botones físicos según el formato (e.g. Band no usa corona física) */
-        if (crownButton && sideButton) {
-            if (deviceType === DEVICES.BAND) {
-                crownButton.classList.add('hidden');
-                sideButton.classList.add('hidden');
-            } else {
-                crownButton.classList.remove('hidden');
-                sideButton.classList.remove('hidden');
-            }
-        }
-
-        /* Actualizar el estado visual activo de los botones del selector */
-        document.querySelectorAll('[data-device-target]').forEach((btn) => {
-            const isSelected = btn.getAttribute('data-device-target') === deviceType;
-            if (isSelected) {
-                btn.classList.add('bg-cyan-500', 'text-white', 'shadow');
-                btn.classList.remove('text-slate-600', 'hover:bg-slate-200');
-            } else {
-                btn.classList.remove('bg-cyan-500', 'text-white', 'shadow');
-                btn.classList.add('text-slate-600', 'hover:bg-slate-200');
+    deviceButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const targetDevice = btn.getAttribute("data-device-target");
+            if (targetDevice) {
+                setDeviceFormat(targetDevice);
             }
         });
+    });
+}
 
-        /* Notificar al lienzo de Three.js para reajustar camara y proyeccion */
-        if (typeof window.onWindowResize === 'function') {
-            setTimeout(() => {
-                window.onWindowResize();
-            }, 350);
+/**
+ * Aplica las clases CSS correspondientes al marco y las correas según el formato elegido,
+ * actualiza la interfaz de los botones selector e informa al renderizador WebGL.
+ *
+ * @param {string} deviceType - Identificador del dispositivo ('circular' | 'square' | 'band').
+ */
+function setDeviceFormat(deviceType) {
+    const watchFrame = document.getElementById("watch-frame");
+    const strapTop = document.getElementById("watch-strap-top");
+    const strapBottom = document.getElementById("watch-strap-bottom");
+    const deviceButtons = document.querySelectorAll("[data-device-target]");
+
+    if (!watchFrame) return;
+
+    /* Lista de clases soportadas para limpieza */
+    const deviceClasses = ["device-circular", "device-square", "device-band"];
+
+    /* Remover clases anteriores */
+    deviceClasses.forEach((cls) => {
+        watchFrame.classList.remove(cls);
+        if (strapTop) strapTop.classList.remove(cls);
+        if (strapBottom) strapBottom.classList.remove(cls);
+    });
+
+    /* Agregar la nueva clase del dispositivo seleccionado */
+    const targetClass = `device-${deviceType}`;
+    watchFrame.classList.add(targetClass);
+    if (strapTop) strapTop.classList.add(targetClass);
+    if (strapBottom) strapBottom.classList.add(targetClass);
+
+    /* Guardar en localStorage */
+    localStorage.setItem("tiltclock_device", deviceType);
+
+    /* Actualizar el estado visual de los botones en el modal estilo iOS */
+    deviceButtons.forEach((btn) => {
+        const isTarget = btn.getAttribute("data-device-target") === deviceType;
+        if (isTarget) {
+            btn.className = "px-3 py-2 rounded-2xl text-xs font-bold bg-cyan-500 text-white shadow-lg ring-2 ring-cyan-500/40 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean";
+        } else {
+            btn.className = "px-3 py-2 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean";
         }
+    });
+
+    /* Notificar al motor 3D para recalcular la relación de aspecto del lienzo */
+    if (typeof window.onWindowResize === "function") {
+        setTimeout(window.onWindowResize, 50);
     }
+}
 
-    /* Exponer funciones a la API global */
-    window.initDeviceSelector = initDeviceSelector;
-    window.setDevice = setDevice;
-
-    /* Auto-inicializar cuando el DOM esté listo */
-    document.addEventListener("DOMContentLoaded", initDeviceSelector);
-})();
+/* Exponer funciones en el objeto global window */
+window.initDeviceSelector = initDeviceSelector;
+window.setDeviceFormat = setDeviceFormat;
