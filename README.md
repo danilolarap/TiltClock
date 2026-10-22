@@ -52,3 +52,5 @@ TiltClock/
 ├── index.html           # Estructura principal DOM
 ├── LICENSE              # Licencia de código abierto MIT
 └── README.md            # Documentación técnica del repositorio
+
+## Autor\nDesarrollado por [Danilo Lara](https://github.com/danilolarap)
