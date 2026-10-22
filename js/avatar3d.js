@@ -1,4 +1,11 @@
-/* Módulo renderizado 3D con compatibilidad para Smartwatch, persistencia de avatar, optimización de memoria GPU y límite de velocidad angular */
+/**
+ * @fileoverview Módulo de renderizado 3D para TiltClock.
+ * Gestiona el lienzo WebGL con Three.js, la carga e instanciación de modelos GLB/GLTF,
+ * el control de escala dinámico, la decodificación Draco y las lecturas del giroscopio.
+ *
+ * @author Danilo Lara <danilolarap>
+ */
+
 let scene, camera, renderer, avatarMesh, orbitalRingsGroup, shadowPlane;
 let mixer, clock, activeAction;
 let isAnimationPlaying = true;
@@ -18,6 +25,11 @@ let previousTouchPosition = { x: 0, y: 0 };
 let initialPinchDistance = null;
 let initialScaleOnPinch = 1.0;
 
+/**
+ * Diccionario de fuentes para los modelos 3D predefinidos (Presets).
+ * Contiene URLs de respaldos y rutas locales.
+ * @type {Object.<string, Array.<string>>}
+ */
 const PRESET_MODELS = {
     fox: [
         "https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/Fox/glTF-Binary/Fox.glb",
@@ -29,6 +41,10 @@ const PRESET_MODELS = {
     riot: ["assets/models/riot.glb"]
 };
 
+/**
+ * Instancia y configura un cargador GLTFLoader con soporte para decodificación Draco.
+ * @returns {THREE.GLTFLoader} Cargador Three.js configurado.
+ */
 function createGLTFLoader() {
     const loader = new THREE.GLTFLoader();
     
@@ -41,6 +57,9 @@ function createGLTFLoader() {
     return loader;
 }
 
+/**
+ * Inicializa el entorno 3D, cámaras, luces, sombras y renderizador WebGL.
+ */
 function initAvatar3D() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container) return;
@@ -115,6 +134,10 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
+/**
+ * Configura los eventos de interacción mouse y gestos táctiles (Pinch zoom / Drag).
+ * @param {HTMLElement} container - Contenedor DOM del canvas.
+ */
 function setupTouchAndMouseControls(container) {
     window.addEventListener("mousemove", (e) => {
         if (isDragging) {
@@ -192,13 +215,21 @@ function setupTouchAndMouseControls(container) {
     });
 }
 
+/**
+ * Calcula la distancia en píxeles entre dos puntos táctiles para el gesto pinch-to-zoom.
+ * @param {TouchList} touches - Lista de puntos de contacto táctil.
+ * @returns {number} Distancia entre puntos.
+ */
 function getTouchDistance(touches) {
     const dx = touches[0].clientX - touches[1].clientX;
     const dy = touches[0].clientY - touches[1].clientY;
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-/* Resaltado visual en los botones del selector de avatar */
+/**
+ * Actualiza la apariencia de los botones del selector de avatares en el header.
+ * @param {string} activeType - Identificador del avatar actualmente activo.
+ */
 function updateAvatarButtonsUI(activeType) {
     const avatarButtons = document.querySelectorAll('button[onclick*="loadPresetAvatar"]');
     if (!avatarButtons.length) return;
@@ -217,6 +248,9 @@ function updateAvatarButtonsUI(activeType) {
     });
 }
 
+/**
+ * Construye la escena 3D procedural del átomo holográfico por defecto.
+ */
 function createHoloOrbitals() {
     clearCurrentAvatar();
     localStorage.setItem('tiltclock_avatar', 'holo');
@@ -255,6 +289,10 @@ function createHoloOrbitals() {
     scene.add(orbitalRingsGroup);
 }
 
+/**
+ * Carga un modelo 3D predefinido por su clave (ej. 'fox', 'pajaro', etc.).
+ * @param {string} type - Clave del modelo preset.
+ */
 window.loadPresetAvatar = function(type) {
     if (type === 'holo') {
         createHoloOrbitals();
@@ -291,6 +329,10 @@ window.loadPresetAvatar = function(type) {
     tryLoadSource(0);
 };
 
+/**
+ * Carga un archivo .GLB local proporcionado mediante un input file.
+ * @param {File} file - Archivo binario de modelo 3D.
+ */
 window.loadGLBModel = function(file) {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
@@ -305,6 +347,10 @@ window.loadGLBModel = function(file) {
     };
 };
 
+/**
+ * Configura las propiedades de sombra, centrado y escala de un modelo GLTF cargado.
+ * @param {Object} gltf - Objeto GLTF procesado por Three.js.
+ */
 function setupLoadedGLTF(gltf) {
     clearCurrentAvatar();
 
@@ -359,7 +405,10 @@ function setupLoadedGLTF(gltf) {
     onWindowResize();
 }
 
-/* Liberación profunda de geometrías, materiales y texturas de la GPU */
+/**
+ * Recorre y libera de la memoria GPU todas las geometrías y materiales de un objeto.
+ * @param {THREE.Object3D} group - Objeto o grupo a destruir.
+ */
 function disposeGroup(group) {
     if (!group) return;
     group.traverse((child) => {
@@ -376,6 +425,10 @@ function disposeGroup(group) {
     });
 }
 
+/**
+ * Destruye un material y sus mapas de textura asociados.
+ * @param {THREE.Material} mat - Material Three.js.
+ */
 function disposeMaterial(mat) {
     if (!mat) return;
     Object.keys(mat).forEach((prop) => {
@@ -386,6 +439,9 @@ function disposeMaterial(mat) {
     mat.dispose();
 }
 
+/**
+ * Limpia el avatar activo, detiene sus animaciones y remueve mallas de la escena.
+ */
 function clearCurrentAvatar() {
     if (mixer) {
         mixer.stopAllAction();
@@ -405,6 +461,9 @@ function clearCurrentAvatar() {
     if (animBtn) animBtn.classList.add("hidden");
 }
 
+/**
+ * Alterna el estado de pausa / reproducción de la animación esquelética.
+ */
 window.toggleAvatarAnimation = function() {
     if (!mixer || !activeAction) return;
 
@@ -420,6 +479,10 @@ window.toggleAvatarAnimation = function() {
     }
 };
 
+/**
+ * Modifica el factor de escala del avatar y actualiza su almacenamiento local.
+ * @param {number} delta - Variación de escala.
+ */
 window.zoomAvatar = function(delta) {
     if (!avatarMesh && !orbitalRingsGroup) return;
 
@@ -429,6 +492,10 @@ window.zoomAvatar = function(delta) {
     applyAvatarScale();
 };
 
+/**
+ * Inicia el zoom continuo mientras se mantenga presionado un botón.
+ * @param {number} delta - Dirección e intensidad del zoom.
+ */
 window.startZoomHold = function(delta) {
     window.zoomAvatar(delta);
     window.stopZoomHold();
@@ -440,6 +507,9 @@ window.startZoomHold = function(delta) {
     }, 250);
 };
 
+/**
+ * Detiene los intervalos de zoom sostenido.
+ */
 window.stopZoomHold = function() {
     if (zoomTimeout) {
         clearTimeout(zoomTimeout);
@@ -451,6 +521,9 @@ window.stopZoomHold = function() {
     }
 };
 
+/**
+ * Aplica la escala calculada a la malla o grupo activo.
+ */
 function applyAvatarScale() {
     if (avatarMesh) {
         const finalScale = baseTargetScale * userScaleFactor;
@@ -460,6 +533,10 @@ function applyAvatarScale() {
     }
 }
 
+/**
+ * Bucle principal de renderizado WebGL (Render Loop).
+ * Sincroniza animaciones de mezcla y suavizado de inclinación por giroscopio/mouse.
+ */
 function animate() {
     requestAnimationFrame(animate);
 
@@ -494,6 +571,10 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+/**
+ * Ajusta la relación de aspecto de la cámara y las dimensiones del renderizador
+ * ante cambios de tamaño de ventana o cambio de formato de dispositivo.
+ */
 function onWindowResize() {
     const container = document.getElementById("avatar-canvas-container");
     if (!container || !renderer || !camera) return;
