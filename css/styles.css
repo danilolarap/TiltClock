@@ -1,10 +1,13 @@
 /**
  * @fileoverview Estilos principales y tematización para TiltClock 3D.
- * Incluye maquetación responsiva, animaciones del marco, reglas para
- * el modal desplegable estilo iOS (AirPods Sheet) y modo oscuro.
+ * Incluye maquetación responsiva, animaciones del marco, reglas exclusivas
+ * de Glassmorphism para el modal desplegable estilo iOS y modo oscuro.
  *
  * @author Danilo Lara <danilolarap>
  */
+
+/* Encabezado descriptivo en styles.css */
+/* Estilos Globales y Reglas de Tematizacion - TiltClock 3D */
 
 /* Tipografías principales */
 .font-clock {
@@ -150,7 +153,7 @@ input[type=number] {
     touch-action: manipulation;
 }
 
-/* Botón flotante izquierdo de edición (Lápiz) */
+/* Botón flotante izquierdo de edición (Lápiz Estilo iOS) */
 .edit-control-container {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -160,7 +163,12 @@ input[type=number] {
     opacity: 1;
 }
 
-/* Estilos y transiciones para el modal desplegable estilo iOS (AirPods Sheet) */
+/* ESTRUCTURA Y GLASSMORPHISM EXCLUSIVO DEL MENU DESPLEGABLE */
+.glass-modal-effect {
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    backdrop-filter: blur(25px) saturate(180%);
+}
+
 #ios-settings-modal.modal-active {
     opacity: 1 !important;
     pointer-events: auto !important;
@@ -175,7 +183,7 @@ input[type=number] {
     transition: stroke-dashoffset 0.6s ease-in-out;
 }
 
-/* Contenedor y lienzo WebGL */
+/* Contenedor y lienzo WebGL (Soporte táctil para Smartwatches y Móviles) */
 #avatar-canvas-container {
     pointer-events: auto;
     transition: opacity 0.3s ease-in-out;
