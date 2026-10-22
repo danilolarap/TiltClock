@@ -61,19 +61,21 @@ function setDeviceFormat(deviceType) {
     /* Guardar en localStorage */
     localStorage.setItem("tiltclock_device", deviceType);
 
-    /* Actualizar el estado visual de los botones en el modal estilo iOS */
+    /* Actualizar el estado visual de los botones en el modal */
     deviceButtons.forEach((btn) => {
         const isTarget = btn.getAttribute("data-device-target") === deviceType;
         if (isTarget) {
             btn.className = "px-3 py-2 rounded-2xl text-xs font-bold bg-cyan-500 text-white shadow-lg ring-2 ring-cyan-500/40 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean";
         } else {
-            btn.className = "px-3 py-2 rounded-2xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean";
+            btn.className = "px-3 py-2 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 border border-white/60 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean shadow-sm";
         }
     });
 
-    /* Notificar al motor 3D para recalcular la relación de aspecto del lienzo */
+    /* Notificar al motor 3D en múltiplos tiempos para forzar el ajuste perfecto del canvas */
     if (typeof window.onWindowResize === "function") {
-        setTimeout(window.onWindowResize, 50);
+        window.onWindowResize();
+        setTimeout(window.onWindowResize, 100);
+        setTimeout(window.onWindowResize, 350);
     }
 }
 
