@@ -1,13 +1,10 @@
 /**
  * @fileoverview Estilos principales y tematización para TiltClock 3D.
  * Incluye maquetación responsiva, animaciones del marco, reglas exclusivas
- * de Glassmorphism para el modal desplegable estilo iOS y modo oscuro.
+ * de Glassmorphism para el modal desplegable estilo iOS en modo claro y oscuro.
  *
  * @author Danilo Lara <danilolarap>
  */
-
-/* Encabezado descriptivo en styles.css */
-/* Estilos Globales y Reglas de Tematizacion - TiltClock 3D */
 
 /* Tipografías principales */
 .font-clock {
@@ -19,7 +16,7 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Ocultar flechas de control en input number con sintaxis moderna */
+/* Ocultar flechas de control en input number */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
     -webkit-appearance: none; 
@@ -32,7 +29,7 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-/* Animación de flotado suave para la vista de reloj */
+/* Animación de flotado suave */
 @keyframes floatWatch {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-8px); }
@@ -43,7 +40,7 @@ input[type=number] {
     will-change: transform;
 }
 
-/* Visualización de la hora con resplandor dinámico */
+/* Visualización de la hora */
 .time-display-box {
     text-shadow: 0 2px 10px rgba(6, 182, 212, 0.3);
 }
@@ -54,7 +51,7 @@ input[type=number] {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 30px rgba(6, 182, 212, 0.1);
 }
 
-/* Recorte de límites de pantalla y brillo de cristal superior */
+/* Recorte de límites de pantalla y brillo */
 .watch-screen {
     overflow: hidden !important;
 }
@@ -68,7 +65,7 @@ input[type=number] {
     z-index: 15;
 }
 
-/* Formato Circular (Round) */
+/* Formato Circular */
 .watch-frame.device-circular {
     width: 340px;
     height: 340px;
@@ -110,7 +107,7 @@ input[type=number] {
     width: 90px;
 }
 
-/* Botón inferior de carga de modelo con ajuste adaptativo de arco */
+/* Botón inferior curvo con ajuste adaptativo */
 .curved-btn {
     width: 72%;
     max-width: 200px;
@@ -135,13 +132,12 @@ input[type=number] {
     background-color: rgba(6, 182, 212, 0.92);
 }
 
-/* Ajuste específico para formato circular */
 .device-circular .curved-btn {
     width: 60%;
     max-width: 140px;
 }
 
-/* Controles de zoom con visibilidad al pasar el cursor */
+/* Controles de zoom */
 .scale-controls-container {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -159,7 +155,7 @@ input[type=number] {
     touch-action: manipulation;
 }
 
-/* Botón flotante izquierdo de edición (Lápiz Estilo iOS) */
+/* Botón flotante izquierdo de edición */
 .edit-control-container {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -169,7 +165,7 @@ input[type=number] {
     opacity: 1;
 }
 
-/* ESTRUCTURA Y GLASSMORPHISM EXCLUSIVO DEL MENU DESPLEGABLE */
+/* GLASSMORPHISM Y REGLAS ESTRICTAS DEL MODAL iOS */
 .glass-modal-effect {
     -webkit-backdrop-filter: blur(25px) saturate(180%);
     backdrop-filter: blur(25px) saturate(180%);
@@ -184,12 +180,56 @@ input[type=number] {
     transform: translateY(0) !important;
 }
 
-/* Anillo de progreso SVG del podómetro */
+/* FORZADO DE ESTILOS MODO CLARO PARA EL MODAL DESPLEGABLE */
+body:not(.dark-theme) #ios-settings-modal {
+    background-color: rgba(15, 23, 42, 0.2) !important;
+}
+
+body:not(.dark-theme) .ios-modal-card {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.5) inset !important;
+}
+
+body:not(.dark-theme) .ios-modal-card h2,
+body:not(.dark-theme) .ios-modal-card span:not(.bg-cyan-500) {
+    color: #0f172a !important;
+}
+
+body:not(.dark-theme) .ios-modal-card p {
+    color: #475569 !important;
+}
+
+body:not(.dark-theme) .ios-modal-card button:not([data-device-target="circular"]):not(.bg-cyan-500) {
+    background-color: rgba(241, 245, 249, 0.9) !important;
+    color: #1e293b !important;
+    border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+body:not(.dark-theme) .ios-modal-card button:not([data-device-target="circular"]):not(.bg-cyan-500):hover {
+    background-color: #ffffff !important;
+}
+
+body:not(.dark-theme) .ios-modal-card input {
+    color: #0f172a !important;
+}
+
+body:not(.dark-theme) .ios-modal-card .border-b,
+body:not(.dark-theme) .ios-modal-card .border-t {
+    border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+body:not(.dark-theme) .ios-modal-card div[class*="bg-white/"] {
+    background-color: rgba(241, 245, 249, 0.8) !important;
+    border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+/* Anillo SVG de pasos */
 .step-ring-circle {
     transition: stroke-dashoffset 0.6s ease-in-out;
 }
 
-/* Contenedor y lienzo WebGL con ajuste estricto de recorte */
+/* Contenedor WebGL */
 #avatar-canvas-container {
     pointer-events: auto;
     transition: opacity 0.3s ease-in-out;
@@ -208,10 +248,20 @@ input[type=number] {
     object-fit: cover;
 }
 
-/* ESTILOS Y TEMATIZACIÓN EN MODO OSCURO */
+/* ESTILOS MODO OSCURO */
 body.dark-theme {
     background-color: #0b0f19;
     color: #f8fafc;
+}
+
+body.dark-theme #ios-settings-modal {
+    background-color: rgba(2, 6, 23, 0.6) !important;
+}
+
+body.dark-theme .ios-modal-card {
+    background-color: rgba(15, 23, 42, 0.88) !important;
+    border-color: rgba(51, 65, 85, 0.6) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
 }
 
 body.dark-theme .watch-frame {
@@ -223,10 +273,6 @@ body.dark-theme .watch-frame {
 body.dark-theme .watch-screen {
     background-color: #030712;
     border-color: rgba(30, 41, 59, 0.9);
-}
-
-body.dark-theme .watch-screen::after {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 50%);
 }
 
 body.dark-theme .watch-strap-top,
@@ -262,7 +308,7 @@ body.dark-theme .time-display-box {
     box-shadow: 0 4px 20px -2px rgba(6, 182, 212, 0.25);
 }
 
-/* Desactivar resaltado azul al tocar elementos en móviles */
+/* Desactivar resaltado azul al tocar en móviles */
 * {
     -webkit-tap-highlight-color: transparent;
 }

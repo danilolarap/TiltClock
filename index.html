@@ -20,27 +20,27 @@
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col items-center justify-center min-h-screen font-sans select-none p-4 gap-6 transition-colors duration-300 overflow-x-hidden antialiased">
 
-    <!-- Modal Desplegable de Configuración con Glassmorphism -->
-    <div id="ios-settings-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/30 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <!-- Modal Desplegable de Configuración con Glassmorphism Adaptativo -->
+    <div id="ios-settings-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/20 dark:bg-slate-950/60 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
         
-        <!-- Tarjeta Flotante Glassmorphism -->
-        <div class="ios-modal-card glass-modal-effect relative w-full sm:max-w-md bg-white/40 dark:bg-slate-900/40 rounded-t-[32px] sm:rounded-[32px] p-6 shadow-[0_8px_32px_0_rgba(31,38,135,0.25)] border border-white/50 dark:border-slate-700/50 transform translate-y-full sm:translate-y-8 transition-all duration-300 ease-out">
+        <!-- Tarjeta Flotante Glassmorphism (Clara en Light Mode / Oscura en Dark Mode) -->
+        <div class="ios-modal-card glass-modal-effect relative w-full sm:max-w-md bg-white/80 dark:bg-slate-900/80 rounded-t-[32px] sm:rounded-[32px] p-6 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] border border-white/80 dark:border-slate-700/60 transform translate-y-full sm:translate-y-8 transition-all duration-300 ease-out">
             
             <!-- Barra superior para deslizar (iOS Grabber) -->
-            <div class="w-10 h-1 bg-slate-400/60 dark:bg-slate-600/60 rounded-full mx-auto mb-4 sm:hidden"></div>
+            <div class="w-10 h-1 bg-slate-400/50 dark:bg-slate-600/60 rounded-full mx-auto mb-4 sm:hidden"></div>
 
             <!-- Cabecera del Modal -->
-            <div class="flex items-center justify-between pb-4 border-b border-slate-300/40 dark:border-slate-700/40">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-700/50">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                    <div class="w-8 h-8 rounded-full bg-cyan-500/10 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-sm font-bold shadow-sm">
                         <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                     </div>
                     <div>
                         <h2 id="modal-title" class="text-sm font-bold text-slate-900 dark:text-slate-100 font-clean tracking-tight">Ajustes de Watchface</h2>
-                        <p id="modal-subtitle" class="text-[11px] font-semibold text-slate-600 dark:text-slate-300 font-clean">Personaliza tu experiencia 3D</p>
+                        <p id="modal-subtitle" class="text-[11px] font-medium text-slate-600 dark:text-slate-300 font-clean">Personaliza tu experiencia 3D</p>
                     </div>
                 </div>
-                <button id="close-ios-modal-btn" aria-label="Cerrar menú de configuración" class="w-7 h-7 rounded-full bg-white/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-xs font-bold transition-all active:scale-90 border border-white/40 dark:border-slate-700/40 shadow-sm">
+                <button id="close-ios-modal-btn" aria-label="Cerrar menú de configuración" class="w-7 h-7 rounded-full bg-slate-200/60 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-slate-300/80 dark:hover:bg-slate-700 flex items-center justify-center text-xs font-bold transition-all active:scale-90 border border-white/60 dark:border-slate-700/40 shadow-sm">
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
@@ -55,10 +55,10 @@
                         <button data-device-target="circular" aria-label="Cambiar a pantalla circular" class="px-3 py-2 rounded-2xl text-xs font-bold bg-cyan-500 text-white shadow-lg ring-2 ring-cyan-500/40 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean">
                             <i class="fa-regular fa-circle text-sm" aria-hidden="true"></i> <span id="btn-label-circular">Circular</span>
                         </button>
-                        <button data-device-target="square" aria-label="Cambiar a formato Apple Watch" class="px-3 py-2 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 border border-white/60 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean shadow-sm">
+                        <button data-device-target="square" aria-label="Cambiar a formato Apple Watch" class="px-3 py-2 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 border border-white/80 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean shadow-sm">
                             <i class="fa-regular fa-square text-sm" aria-hidden="true"></i> <span id="btn-label-square">Apple Watch</span>
                         </button>
-                        <button data-device-target="band" aria-label="Cambiar a formato Xiaomi Band" class="px-3 py-2 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 border border-white/60 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean shadow-sm">
+                        <button data-device-target="band" aria-label="Cambiar a formato Xiaomi Band" class="px-3 py-2 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 border border-white/80 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean shadow-sm">
                             <i class="fa-solid fa-capsules text-sm" aria-hidden="true"></i> <span id="btn-label-band">Xiaomi Band</span>
                         </button>
                     </div>
@@ -68,22 +68,22 @@
                 <div>
                     <span id="avatar-label" class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-2 font-clean">Avatar Predefinido</span>
                     <div class="grid grid-cols-6 gap-2">
-                        <button onclick="window.loadPresetAvatar('holo')" aria-label="Cargar átomo holográfico" title="Átomo Holográfico" class="p-2.5 rounded-2xl text-xs font-bold bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/60 dark:border-slate-700/60 shadow-sm">
+                        <button onclick="window.loadPresetAvatar('holo')" aria-label="Cargar átomo holográfico" title="Átomo Holográfico" class="p-2.5 rounded-2xl text-xs font-bold bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/80 dark:border-slate-700/60 shadow-sm">
                             <i class="fa-solid fa-atom text-cyan-500 text-base" aria-hidden="true"></i>
                         </button>
-                        <button onclick="window.loadPresetAvatar('fox')" aria-label="Cargar zorro 3D" title="Zorro 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/60 dark:border-slate-700/60 shadow-sm">
+                        <button onclick="window.loadPresetAvatar('fox')" aria-label="Cargar zorro 3D" title="Zorro 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/80 dark:border-slate-700/60 shadow-sm">
                             <i class="fa-solid fa-paw text-cyan-500 text-base" aria-hidden="true"></i>
                         </button>
-                        <button onclick="window.loadPresetAvatar('pajaro')" aria-label="Cargar pájaro 3D" title="Pájaro 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/60 dark:border-slate-700/60 shadow-sm">
+                        <button onclick="window.loadPresetAvatar('pajaro')" aria-label="Cargar pájaro 3D" title="Pájaro 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/80 dark:border-slate-700/60 shadow-sm">
                             <i class="fa-solid fa-crow text-cyan-500 text-base" aria-hidden="true"></i>
                         </button>
-                        <button onclick="window.loadPresetAvatar('mapache')" aria-label="Cargar mapache 3D" title="Mapache 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/60 dark:border-slate-700/60 shadow-sm">
+                        <button onclick="window.loadPresetAvatar('mapache')" aria-label="Cargar mapache 3D" title="Mapache 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/80 dark:border-slate-700/60 shadow-sm">
                             <i class="fa-solid fa-mask text-cyan-500 text-base" aria-hidden="true"></i>
                         </button>
-                        <button onclick="window.loadPresetAvatar('moneda')" aria-label="Cargar moneda 3D" title="Moneda 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/60 dark:border-slate-700/60 shadow-sm">
+                        <button onclick="window.loadPresetAvatar('moneda')" aria-label="Cargar moneda 3D" title="Moneda 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/80 dark:border-slate-700/60 shadow-sm">
                             <i class="fa-solid fa-coins text-cyan-500 text-base" aria-hidden="true"></i>
                         </button>
-                        <button onclick="window.loadPresetAvatar('riot')" aria-label="Cargar modelo Riot 3D" title="Riot 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/60 dark:border-slate-700/60 shadow-sm">
+                        <button onclick="window.loadPresetAvatar('riot')" aria-label="Cargar modelo Riot 3D" title="Riot 3D" class="p-2.5 rounded-2xl text-xs font-bold bg-white/60 dark:bg-slate-800/60 hover:bg-white/90 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center justify-center font-clean border border-white/80 dark:border-slate-700/60 shadow-sm">
                             <i class="fa-solid fa-shield-halved text-cyan-500 text-base" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -93,26 +93,26 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                     
                     <!-- Pasos -->
-                    <div class="bg-white/40 dark:bg-slate-800/40 p-3 rounded-2xl border border-white/50 dark:border-slate-700/50 flex items-center justify-between shadow-sm">
+                    <div class="bg-white/60 dark:bg-slate-800/50 p-3 rounded-2xl border border-white/80 dark:border-slate-700/50 flex items-center justify-between shadow-sm">
                         <span id="steps-control-label" class="text-xs font-bold text-slate-800 dark:text-slate-200 font-clean">Pasos:</span>
-                        <div class="flex items-center bg-white/70 dark:bg-slate-700/70 rounded-xl border border-white/60 dark:border-slate-600/60 p-0.5 shadow-sm">
-                            <button onclick="window.addSteps(-500)" aria-label="Restar 500 pasos" title="Restar 500 pasos" class="w-6 h-6 rounded-lg bg-white/80 dark:bg-slate-600 text-slate-800 dark:text-slate-100 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all active:scale-90 shadow-sm">
+                        <div class="flex items-center bg-white/80 dark:bg-slate-700/70 rounded-xl border border-white/90 dark:border-slate-600/60 p-0.5 shadow-sm">
+                            <button onclick="window.addSteps(-500)" aria-label="Restar 500 pasos" title="Restar 500 pasos" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-600 text-slate-800 dark:text-slate-100 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all active:scale-90 shadow-sm">
                                 <i class="fa-solid fa-minus text-[10px]" aria-hidden="true"></i>
                             </button>
                             <input id="step-input" type="number" min="0" max="50000" value="1259" aria-label="Cantidad de pasos" class="w-16 text-center text-xs font-bold bg-transparent text-slate-900 dark:text-slate-100 focus:outline-none font-clean px-1">
-                            <button onclick="window.addSteps(500)" aria-label="Sumar 500 pasos" title="Sumar 500 pasos" class="w-6 h-6 rounded-lg bg-white/80 dark:bg-slate-600 text-slate-800 dark:text-slate-100 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all active:scale-90 shadow-sm">
+                            <button onclick="window.addSteps(500)" aria-label="Sumar 500 pasos" title="Sumar 500 pasos" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-600 text-slate-800 dark:text-slate-100 hover:bg-cyan-500 hover:text-white flex items-center justify-center text-xs font-bold transition-all active:scale-90 shadow-sm">
                                 <i class="fa-solid fa-plus text-[10px]" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Interruptores Tema e Idioma -->
-                    <div class="bg-white/40 dark:bg-slate-800/40 p-3 rounded-2xl border border-white/50 dark:border-slate-700/50 flex items-center justify-around shadow-sm">
-                        <button id="theme-toggle-btn" role="switch" aria-checked="false" aria-label="Cambiar tema de la interfaz" title="Cambiar Tema" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/70 dark:bg-slate-700/70 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center gap-1.5 font-clean border border-white/60 dark:border-slate-600/60 shadow-sm">
+                    <div class="bg-white/60 dark:bg-slate-800/50 p-3 rounded-2xl border border-white/80 dark:border-slate-700/50 flex items-center justify-around shadow-sm">
+                        <button id="theme-toggle-btn" role="switch" aria-checked="false" aria-label="Cambiar tema de la interfaz" title="Cambiar Tema" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/80 dark:bg-slate-700/70 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center gap-1.5 font-clean border border-white/90 dark:border-slate-600/60 shadow-sm">
                             <i id="theme-icon" class="fa-solid fa-moon text-slate-700" aria-hidden="true"></i>
                         </button>
                         <div class="h-4 w-px bg-slate-300/60 dark:bg-slate-700/60"></div>
-                        <button id="lang-toggle-btn" aria-label="Cambiar idioma de la interfaz" title="Cambiar Idioma" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/70 dark:bg-slate-700/70 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center gap-1.5 font-clean border border-white/60 dark:border-slate-600/60 shadow-sm">
+                        <button id="lang-toggle-btn" aria-label="Cambiar idioma de la interfaz" title="Cambiar Idioma" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/80 dark:bg-slate-700/70 text-slate-800 dark:text-slate-200 transition-all active:scale-95 duration-150 flex items-center gap-1.5 font-clean border border-white/90 dark:border-slate-600/60 shadow-sm">
                             <i class="fa-solid fa-globe text-cyan-500" aria-hidden="true"></i>
                             <span id="lang-text">ES</span>
                         </button>
