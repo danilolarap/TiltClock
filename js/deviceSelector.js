@@ -67,7 +67,7 @@ function setDeviceFormat(deviceType) {
         if (isTarget) {
             btn.className = "px-3 py-2 rounded-2xl text-xs font-bold bg-cyan-500 text-white shadow-lg ring-2 ring-cyan-500/40 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean";
         } else {
-            btn.className = "px-3 py-2 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-700/80 border border-white/60 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean shadow-sm";
+            btn.className = "px-3 py-2 rounded-2xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-200/60 dark:bg-slate-800/60 hover:bg-slate-300/80 dark:hover:bg-slate-700/80 border border-slate-300/50 dark:border-slate-700/60 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean shadow-sm";
         }
     });
 

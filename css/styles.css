@@ -200,13 +200,13 @@ body:not(.dark-theme) .ios-modal-card p {
     color: #475569 !important;
 }
 
-body:not(.dark-theme) .ios-modal-card button:not([data-device-target="circular"]):not(.bg-cyan-500) {
-    background-color: rgba(241, 245, 249, 0.9) !important;
-    color: #1e293b !important;
-    border-color: rgba(226, 232, 240, 0.8) !important;
+body:not(.dark-theme) .ios-modal-card button:not(.bg-cyan-500) {
+    background-color: rgba(241, 245, 249, 0.85);
+    color: #0f172a !important;
+    border-color: rgba(226, 232, 240, 0.9) !important;
 }
 
-body:not(.dark-theme) .ios-modal-card button:not([data-device-target="circular"]):not(.bg-cyan-500):hover {
+body:not(.dark-theme) .ios-modal-card button:not(.bg-cyan-500):hover {
     background-color: #ffffff !important;
 }
 
