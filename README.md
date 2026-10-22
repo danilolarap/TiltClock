@@ -58,7 +58,11 @@ TiltClock/
 1. Clonar el repositorio:
    ```bash
    git clone [https://github.com/danilolarap/TiltClock.git](https://github.com/danilolarap/TiltClock.git)
-   
+
 ## Autor
 
 Desarrollado por [Danilo Lara](https://github.com/danilolarap).
+
+## Licencia
+
+Este proyecto se encuentra bajo la Licencia MIT. Para más detalles, consulte el archivo `LICENSE`.
