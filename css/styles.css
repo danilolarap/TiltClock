@@ -149,6 +149,7 @@ input[type=number] {
 /* Contenedor y lienzo WebGL (Soporte táctil para Smartwatches y Móviles) */
 #avatar-canvas-container {
     pointer-events: auto;
+    transition: opacity 0.3s ease-in-out;
 }
 
 #avatar-canvas-container canvas {
