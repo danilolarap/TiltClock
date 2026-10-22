@@ -139,6 +139,7 @@ input[type=number] {
     user-select: none;
     backdrop-filter: blur(8px);
     touch-action: manipulation;
+    -webkit-user-select: none;
 }
 
 /* Anillo de progreso SVG del podómetro */
