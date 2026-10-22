@@ -28,6 +28,7 @@ input[type=number] {
 
 .watch-container-animate {
     animation: floatWatch 5s ease-in-out infinite;
+    will-change: transform;
 }
 
 /* Visualización de la hora con resplandor dinámico */
