@@ -1,19 +1,21 @@
 /**
  * @fileoverview Módulo de Gestión de Tema e Idioma (ES/EN) con persistencia en localStorage para TiltClock.
- * Controla la conmutación entre modo claro y oscuro, la traducción dinámica del DOM,
+ * Controla la conmutación entre modo claro y oscuro, la traducción dinámica del DOM (incluyendo cabecera del modal),
  * el soporte para nombres de días/meses y la persistencia de preferencias del usuario.
  *
  * @author Danilo Lara <danilolarap>
  */
 (function () {
     /**
-     * Diccionario de traducciones para español (es) e inglés (en).
+     * Diccionario completo de traducciones para español (es) e inglés (en).
      * @type {Object.<string, Object.<string, string|Array.<string>>>}
      */
     const TRANSLATIONS = {
         es: {
-            modelLabel: "Modelo:",
-            avatarLabel: "Avatar:",
+            modalTitle: "Ajustes de Watchface",
+            modalSubtitle: "Personaliza tu experiencia 3D",
+            modelLabel: "Modelo",
+            avatarLabel: "Avatar Predefinido",
             stepsControlLabel: "Pasos:",
             circular: "Circular",
             square: "Apple Watch",
@@ -21,12 +23,17 @@
             stepsLabel: "PASOS",
             uploadInitial: "Cargar Avatar .GLB",
             uploadLoaded: "Cambiar .GLB",
+            themeTitle: "Cambiar Tema",
+            langTitle: "Cambiar Idioma",
+            editTitle: "Personalizar reloj",
             days: ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'],
             months: ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
         },
         en: {
-            modelLabel: "Model:",
-            avatarLabel: "Avatar:",
+            modalTitle: "Watchface Settings",
+            modalSubtitle: "Customize your 3D experience",
+            modelLabel: "Model",
+            avatarLabel: "Preset Avatar",
             stepsControlLabel: "Steps:",
             circular: "Round",
             square: "Apple Watch",
@@ -34,6 +41,9 @@
             stepsLabel: "STEPS",
             uploadInitial: "Upload .GLB Avatar",
             uploadLoaded: "Change .GLB",
+            themeTitle: "Toggle Theme",
+            langTitle: "Change Language",
+            editTitle: "Customize Watch",
             days: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
             months: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
         }
@@ -123,6 +133,8 @@
     function updateTranslations() {
         const t = TRANSLATIONS[currentLang];
 
+        const modalTitle = document.getElementById('modal-title');
+        const modalSubtitle = document.getElementById('modal-subtitle');
         const modelLabel = document.getElementById('model-label');
         const avatarLabel = document.getElementById('avatar-label');
         const stepsControlLabel = document.getElementById('steps-control-label');
@@ -132,7 +144,12 @@
         const stepsLabel = document.getElementById('steps-label');
         const uploadBtnText = document.getElementById('upload-btn-text');
         const langText = document.getElementById('lang-text');
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const langBtn = document.getElementById('lang-toggle-btn');
+        const editBtn = document.getElementById('open-ios-modal-btn');
 
+        if (modalTitle) modalTitle.innerText = t.modalTitle;
+        if (modalSubtitle) modalSubtitle.innerText = t.modalSubtitle;
         if (langText) langText.innerText = currentLang.toUpperCase();
         if (modelLabel) modelLabel.innerText = t.modelLabel;
         if (avatarLabel) avatarLabel.innerText = t.avatarLabel;
@@ -141,6 +158,11 @@
         if (btnSquare) btnSquare.innerText = t.square;
         if (btnBand) btnBand.innerText = t.band;
         if (stepsLabel) stepsLabel.innerText = t.stepsLabel;
+
+        /* Actualización de tooltips dinámicos */
+        if (themeBtn) themeBtn.title = t.themeTitle;
+        if (langBtn) langBtn.title = t.langTitle;
+        if (editBtn) editBtn.title = t.editTitle;
 
         if (uploadBtnText) {
             const isLoaded = document.getElementById('upload-btn-wrapper')?.classList.contains('btn-state-loaded');
