@@ -53,6 +53,12 @@ TiltClock/
 ├── LICENSE              # Licencia de código abierto MIT
 └── README.md            # Documentación técnica del repositorio
 
+## Instalación y Uso
+
+1. Clonar el repositorio:
+   ```bash
+   git clone [https://github.com/danilolarap/TiltClock.git](https://github.com/danilolarap/TiltClock.git)
+   
 ## Autor
 
 Desarrollado por [Danilo Lara](https://github.com/danilolarap).
