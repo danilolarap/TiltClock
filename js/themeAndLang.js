@@ -1,6 +1,15 @@
-/* Módulo de Gestión de Tema e Idioma (ES/EN) con persistencia en localStorage */
+/**
+ * @fileoverview Módulo de Gestión de Tema e Idioma (ES/EN) con persistencia en localStorage para TiltClock.
+ * Controla la conmutación entre modo claro y oscuro, la traducción dinámica del DOM,
+ * el soporte para nombres de días/meses y la persistencia de preferencias del usuario.
+ *
+ * @author Danilo Lara <danilolarap>
+ */
 (function () {
-    /* Diccionario de traducciones */
+    /**
+     * Diccionario de traducciones para español (es) e inglés (en).
+     * @type {Object.<string, Object.<string, string|Array.<string>>>}
+     */
     const TRANSLATIONS = {
         es: {
             modelLabel: "Modelo:",
@@ -30,11 +39,15 @@
         }
     };
 
-    /* Cargar preferencias guardadas en localStorage */
+    /** @type {string} Tema actual recuperado de localStorage o 'light' por defecto. */
     let currentTheme = localStorage.getItem('tiltclock_theme') || 'light';
+
+    /** @type {string} Idioma actual recuperado de localStorage o 'es' por defecto. */
     let currentLang = localStorage.getItem('tiltclock_lang') || 'es';
 
-    /* Inicialización de eventos e interfaz */
+    /**
+     * Inicializa los eventos de los botones de tema e idioma y aplica las preferencias guardadas.
+     */
     function initThemeAndLang() {
         const themeBtn = document.getElementById('theme-toggle-btn');
         const langBtn = document.getElementById('lang-toggle-btn');
@@ -51,28 +64,48 @@
         updateTranslations();
     }
 
-    /* Alternar entre modo claro y oscuro */
+    /**
+     * Alterna el tema visual actual entre 'light' y 'dark'.
+     */
     function toggleTheme() {
         currentTheme = currentTheme === 'light' ? 'dark' : 'light';
         localStorage.setItem('tiltclock_theme', currentTheme);
         applyTheme(currentTheme);
     }
 
-    /* Aplicar clases y estilos del tema */
+    /**
+     * Aplica la clase 'dark-theme' al body y actualiza los estilos e iconos del botón de tema con alto contraste.
+     * @param {string} theme - Nombre del tema ('light' | 'dark').
+     */
     function applyTheme(theme) {
         const body = document.body;
         const themeIcon = document.getElementById('theme-icon');
+        const themeBtn = document.getElementById('theme-toggle-btn');
 
         if (theme === 'dark') {
             body.classList.add('dark-theme');
-            if (themeIcon) themeIcon.className = "fa-solid fa-sun text-amber-400";
+            if (themeIcon) {
+                themeIcon.className = "fa-solid fa-sun text-amber-400 text-sm";
+            }
+            if (themeBtn) {
+                themeBtn.setAttribute('aria-checked', 'true');
+                themeBtn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800/80 hover:bg-slate-700 text-amber-400 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean border border-slate-700/80 shadow-sm";
+            }
         } else {
             body.classList.remove('dark-theme');
-            if (themeIcon) themeIcon.className = "fa-solid fa-moon text-slate-600";
+            if (themeIcon) {
+                themeIcon.className = "fa-solid fa-moon text-cyan-500 text-sm";
+            }
+            if (themeBtn) {
+                themeBtn.setAttribute('aria-checked', 'false');
+                themeBtn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-white/80 hover:bg-white text-slate-800 transition-all active:scale-95 duration-150 flex items-center justify-center gap-1.5 font-clean border border-white/60 shadow-sm";
+            }
         }
     }
 
-    /* Alternar entre español e inglés */
+    /**
+     * Alterna el idioma entre 'es' y 'en', actualiza las traducciones y la hora del reloj.
+     */
     function toggleLang() {
         currentLang = currentLang === 'es' ? 'en' : 'es';
         localStorage.setItem('tiltclock_lang', currentLang);
@@ -84,7 +117,9 @@
         }
     }
 
-    /* Actualizar todos los textos traducibles del DOM */
+    /**
+     * Actualiza todos los elementos traducibles del DOM según el idioma activo.
+     */
     function updateTranslations() {
         const t = TRANSLATIONS[currentLang];
 
@@ -113,16 +148,23 @@
         }
     }
 
-    /* Funciones globales de consulta */
+    /**
+     * Obtiene el código del idioma activo actualmente.
+     * @returns {string} Código de idioma ('es' | 'en').
+     */
     function getCurrentLang() {
         return currentLang;
     }
 
+    /**
+     * Obtiene el objeto de traducción para el idioma activo.
+     * @returns {Object.<string, string|Array.<string>>} Objeto con las traducciones.
+     */
     function getTranslations() {
         return TRANSLATIONS[currentLang];
     }
 
-    /* Exponer API al ámbito global */
+    /* Exponer API al ámbito global window */
     window.initThemeAndLang = initThemeAndLang;
     window.getCurrentLang = getCurrentLang;
     window.getTranslations = getTranslations;
