@@ -1,79 +1,79 @@
-/* Módulo de Giroscopio e Inclinación con Filtro de Suavizado para Móviles y Smartwatches */
-window.gyroData = null;
-let isGyroPermissionGranted = false;
-let isListening = false;
+/**
+ * @fileoverview Módulo de captura y procesamiento de datos del giroscopio para TiltClock.
+ * Captura la orientación del dispositivo (DeviceOrientation), aplica un filtro de
+ * suavizado paso bajo (Low-Pass Filter) para atenuar ruido y gestiona la solicitud
+ * de permisos explícitos en navegadores móviles (iOS / Safari).
+ *
+ * @author Danilo Lara <danilolarap>
+ */
 
-/* Variables para el filtro de suavizado (Low-pass filter) */
-let smoothedBeta = 0;
-let smoothedGamma = 0;
-const SMOOTHING_FACTOR = 0.15;
+/**
+ * Objeto global con los ángulos de rotación suavizados.
+ * @type {{beta: number|null, gamma: number|null, alpha: number|null}}
+ */
+window.gyroData = {
+    beta: null,
+    gamma: null,
+    alpha: null
+};
 
-function initGyroscope() {
-    if (window.DeviceOrientationEvent && !isGyroPermissionGranted) {
-        attachOrientationListener();
+/** @type {boolean} Estado de permisos concedidos para la orientación del dispositivo. */
+let gyroPermissionGranted = false;
+
+/**
+ * Solicita permisos explícitos al usuario para acceder a DeviceOrientationEvent (requerido en iOS 13+).
+ */
+function requestGyroPermission() {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+            .then((response) => {
+                if (response === 'granted') {
+                    gyroPermissionGranted = true;
+                    bindGyroEvents();
+                }
+            })
+            .catch(console.error);
+    } else {
+        gyroPermissionGranted = true;
+        bindGyroEvents();
     }
 }
 
-function attachOrientationListener() {
-    if (!isListening) {
-        window.addEventListener("deviceorientation", handleOrientation, true);
-        isListening = true;
-    }
-}
+/**
+ * Vincula los escuchadores de eventos para la orientación del dispositivo y aplica el filtro paso bajo.
+ */
+function bindGyroEvents() {
+    if (!window.DeviceOrientationEvent) return;
 
-function handleOrientation(event) {
-    /* Si el dispositivo no envía lecturas reales (ej. PC de escritorio), mantener en null */
-    if (event.beta === null || event.gamma === null) {
-        window.gyroData = null;
-        return;
-    }
+    window.addEventListener('deviceorientation', (e) => {
+        if (e.beta === null || e.gamma === null) return;
 
-    /* Limitar el rango de inclinación para evitar giros excesivos en la pantalla del reloj */
-    const rawBeta = Math.max(-45, Math.min(45, event.beta));   /* Eje X (Inclinación frontal/muñeca) */
-    const rawGamma = Math.max(-45, Math.min(45, event.gamma)); /* Eje Y (Inclinación lateral) */
+        /* Filtro paso bajo (alpha = 0.15) para suavizar pequeñas vibraciones */
+        const filterFactor = 0.15;
 
-    /* Filtro de suavizado paso bajo para eliminar el temblor natural de la mano */
-    smoothedBeta += (rawBeta - smoothedBeta) * SMOOTHING_FACTOR;
-    smoothedGamma += (rawGamma - smoothedGamma) * SMOOTHING_FACTOR;
-
-    window.gyroData = {
-        beta: smoothedBeta,
-        gamma: smoothedGamma
-    };
-}
-
-/* Solicitar permisos de sensores nativos (Compatibilidad con watchOS, Wear OS, iOS y Android) */
-window.requestGyroPermission = async function () {
-    if (isGyroPermissionGranted) return true;
-
-    try {
-        /* Permiso DeviceOrientation en navegadores basados en WebKit (iOS / watchOS) */
-        if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-            const permission = await DeviceOrientationEvent.requestPermission();
-            if (permission === "granted") {
-                attachOrientationListener();
-                isGyroPermissionGranted = true;
-            }
+        if (window.gyroData.beta === null) {
+            window.gyroData.beta = e.beta;
+            window.gyroData.gamma = e.gamma;
+            window.gyroData.alpha = e.alpha;
         } else {
-            attachOrientationListener();
-            isGyroPermissionGranted = true;
+            window.gyroData.beta += (e.beta - window.gyroData.beta) * filterFactor;
+            window.gyroData.gamma += (e.gamma - window.gyroData.gamma) * filterFactor;
+            if (e.alpha !== null && window.gyroData.alpha !== null) {
+                window.gyroData.alpha += (e.alpha - window.gyroData.alpha) * filterFactor;
+            }
         }
+    }, true);
+}
 
-        /* Permiso DeviceMotion para sensores de acelerómetro del podómetro */
-        if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") {
-            await DeviceMotionEvent.requestPermission();
-        }
+/**
+ * Inicializa el módulo de giroscopio al cargar la página.
+ */
+function initGyroscope() {
+    bindGyroEvents();
+}
 
-        return isGyroPermissionGranted;
-    } catch (error) {
-        console.warn("Permisos de giroscopio o acelerómetro denegados/no soportados:", error);
-        return false;
-    }
-};
-
-/* Exponer estado de permisos */
-window.isGyroGranted = function () {
-    return isGyroPermissionGranted;
-};
+/* Exponer funciones en el ámbito global window */
+window.requestGyroPermission = requestGyroPermission;
+window.initGyroscope = initGyroscope;
 
 document.addEventListener("DOMContentLoaded", initGyroscope);
