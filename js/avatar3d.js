@@ -239,10 +239,10 @@ function updateAvatarButtonsUI(activeType) {
         const isSelected = onClickAttr.includes(`'${activeType}'`);
 
         if (isSelected) {
-            btn.classList.add('border-cyan-500', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/40');
+            btn.classList.add('border-cyan-500', 'bg-cyan-500/10', 'ring-2', 'ring-inset', 'ring-cyan-500/40');
             btn.classList.remove('bg-slate-100', 'border-slate-200');
         } else {
-            btn.classList.remove('border-cyan-500', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/40');
+            btn.classList.remove('border-cyan-500', 'bg-cyan-500/10', 'ring-2', 'ring-inset', 'ring-cyan-500/40');
             btn.classList.add('bg-slate-100', 'border-slate-200');
         }
     });
